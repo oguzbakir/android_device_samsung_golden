@@ -3,6 +3,7 @@
 
 import /init.samsungcodina.usb.rc
 import /init.ste.rc
+import /init.meticulus.rc
 
 on init
 

@@ -1,14 +1,14 @@
 #!/bin/bash
 
 THISDIR=$PWD
-TOPDIR="$THISDIR/../../../../"
+TOPDIR="$PWD/../../../../"
 CLEARED=""
 
 clear_set() {
-cd $1
+cd $PWD
 for LINE in $(echo $(find -name *.patch); echo $(find -name *.apply))
 do
-  	REPO=$(dirname $LINE)
+  	REPO=$($LINE)
 	if [[ $(echo $CLEARED | grep -c "$REPO") -gt 0 ]]; then
 		continue
 	fi 

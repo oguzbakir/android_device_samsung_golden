@@ -17,6 +17,6 @@
 
 LOCAL_PATH := $(call my-dir)
 
-ifeq ($(TARGET_DEVICE),codinalte)
+ifeq ($(TARGET_DEVICE),golden)
     include $(call all-subdir-makefiles)
 endif

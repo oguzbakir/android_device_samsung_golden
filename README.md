@@ -1,4 +1,4 @@
-# Carbon ROM (KitKat) for the Galaxy Exhibit / Ace 2e (codinalte)
+# Carbon ROM (KitKat) for the Galaxy Exhibit / Ace 2e (golden)
 This device tree can build for one or all of these three devices:
 
 1. Samsung Galaxy Exhibit T599 (T-Mobile) AKA: codinatmo
@@ -67,14 +67,14 @@ The local manifest is different for every device. It contains those repos that a
 Execute the following commands in a linux terminal:
 ```bash
 mkdir /home/$USER/carbon/.repo/local_manifests
-gedit /home/$USER/carbon/.repo/local_manifests/codinalte.xml
+gedit /home/$USER/carbon/.repo/local_manifests/golden.xml
 ```
-Assuming you want to build for all three devices copy the following into codinalte.xml, save and close. If not remove the "vendor" trees for the devices you don't want.
+Assuming you want to build for all three devices copy the following into golden.xml, save and close. If not remove the "vendor" trees for the devices you don't want.
 ```bash
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest>
   <project name="Meticulus/android_kernel_samsung_codina" path="kernel/samsung/codina" remote="cm" revision="kk44"/>
-  <project name="Meticulus/android_device_samsung_codinalte" path="device/samsung/codinalte" remote="cm" revision="carbon"/>
+  <project name="Meticulus/android_device_samsung_golden" path="device/samsung/golden" remote="cm" revision="carbon"/>
   <project name="Meticulus/android_vendor_samsung_codinatmo" path="vendor/samsung/codinatmo" remote="cm" revision="kk44"/>
   <project name="Meticulus/android_vendor_samsung_codinamtr" path="vendor/samsung/codinamtr" remote="cm" revision="kk44"/>
   <project name="Meticulus/android_vendor_samsung_codinavid" path="vendor/samsung/codinavid" remote="cm" revision="kk44"/>
@@ -93,7 +93,7 @@ NOTE: Yes we are syncing again and No, it shouldn't take quite as long. Every ti
 Now you will want to apply the repo patches. These patches modify code in the ROM to work with this device.
 Execute the following commands in a linux terminal:
 ```bash
-cd /home/$USER/carbon/device/samsung/codinalte
+cd /home/$USER/carbon/device/samsung/golden
 ./patch.sh
 ```
 

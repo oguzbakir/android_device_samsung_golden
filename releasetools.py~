@@ -46,7 +46,7 @@ def FullOTA_Assertions(info):
   	addFolderToZip(info, os.path.join(TARGET_DIR, "golden"),"system")
 	models += 1
   else :
-	print "Warning!: Vendor files for golden were not found..."
+	print "Warning!: Vendor files for codinavid were not found..."
         time.sleep(2)
 
   if(models == 0):

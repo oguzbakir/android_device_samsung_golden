@@ -1,6 +1,6 @@
-type codinalteparts_sysfs, file_type;
-allow system_app codinalteparts_sysfs:file { open getattr read write create lock };
-allow init codinalteparts_sysfs:file { open getattr setattr read write create lock };
-allow init codinalteparts_sysfs:file relabelto;
-allow kernel codinalteparts_sysfs:file relabelto;
-allow healthd codinalteparts_sysfs:file { open getattr read };
+type goldenparts_sysfs, file_type;
+allow system_app goldenparts_sysfs:file { open getattr read write create lock };
+allow init goldenparts_sysfs:file { open getattr setattr read write create lock };
+allow init goldenparts_sysfs:file relabelto;
+allow kernel goldenparts_sysfs:file relabelto;
+allow healthd goldenparts_sysfs:file { open getattr read };

@@ -369,7 +369,7 @@ struct android_depth_points {
     /** reserved for future use, set to 0 by gralloc's (*lock)() */
     uint32_t reserved[8];
 
-    //float xyzc_points[];
+    float xyzc_points[];
 };
 
 
