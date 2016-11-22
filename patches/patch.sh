@@ -26,7 +26,7 @@ do
 		continue
 fi
 	cd $REPO
-	RESULT=$(git am $PATCH)
+	RESULT=$(patch -p1 --follow-symlinks --no-backup-if-mismatch < $PATCH)
 	echo -e "${RESULT}"
 	if [[ $(echo $RESULT | grep -c FAILED) -gt 0 ]] ; then
 		echo ""

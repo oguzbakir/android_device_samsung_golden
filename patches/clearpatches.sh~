@@ -1,14 +1,14 @@
 #!/bin/bash
 
 THISDIR=$PWD
-TOPDIR="$PWD/../../../../"
+TOPDIR="$THISDIR/../../../../"
 CLEARED=""
 
 clear_set() {
-cd $PWD
+cd $1
 for LINE in $(echo $(find -name *.patch); echo $(find -name *.apply))
 do
-  	REPO=$($LINE)
+  	REPO=$(dirname $LINE)
 	if [[ $(echo $CLEARED | grep -c "$REPO") -gt 0 ]]; then
 		continue
 	fi 
@@ -28,6 +28,7 @@ do
 	find -name *.rej | while read LINE; do rm $LINE; done
 	git clean -f > /dev/null
 	git stash clear > /dev/null
+        git rebase --abort
 	CLEARED="$CLEARED|$REPO|"
 	cd $THISDIR
 done
