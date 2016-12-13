@@ -1,0 +1,540 @@
+diff --git a/include/private/android_filesystem_config.h b/include/private/android_filesystem_config.h
+index f03346e..3da1476 100644
+--- a/include/private/android_filesystem_config.h
++++ b/include/private/android_filesystem_config.h
+@@ -88,7 +88,11 @@
+ #define AID_WEBSERV       1044  /* webservd process */
+ #define AID_DEBUGGERD     1045  /* debuggerd unprivileged user */
+ #define AID_MEDIA_CODEC   1046  /* mediacodec process */
++#ifdef TARGET_LEGACY_CAMERA_HAL1
++#define AID_CAMERASERVER  AID_MEDIA /* cameraserver process */
++#else
+ #define AID_CAMERASERVER  1047  /* cameraserver process */
++#endif
+ #define AID_FIREWALL      1048  /* firewalld process */
+ #define AID_TRUNKS        1049  /* trunksd process (TPM daemon) */
+ #define AID_NVRAM         1050  /* Access-controlled NVRAM */
+diff --git a/include/system/graphics.h b/include/system/graphics.h
+index 529a562..7526624 100644
+--- a/include/system/graphics.h
++++ b/include/system/graphics.h
+@@ -58,6 +58,8 @@ typedef enum android_pixel_format {
+     HAL_PIXEL_FORMAT_RGB_888            = 3,
+     HAL_PIXEL_FORMAT_RGB_565            = 4,
+     HAL_PIXEL_FORMAT_BGRA_8888          = 5,
++    HAL_PIXEL_FORMAT_RGBA_5551          = 6,
++    HAL_PIXEL_FORMAT_RGBA_4444          = 7,
+ 
+     /*
+      * 0x100 - 0x1FF
+@@ -441,6 +443,21 @@ typedef enum android_pixel_format {
+     HAL_PIXEL_FORMAT_YCbCr_422_SP       = 0x10, // NV16
+     HAL_PIXEL_FORMAT_YCrCb_420_SP       = 0x11, // NV21
+     HAL_PIXEL_FORMAT_YCbCr_422_I        = 0x14, // YUY2
++#ifdef STE_HARDWARE
++    HAL_PIXEL_FORMAT_YCbCr_422_P        = 0x12,
++    HAL_PIXEL_FORMAT_YCbCr_420_P        = 0x13,
++    HAL_PIXEL_FORMAT_YCbCr_420_I        = 0x15,
++    HAL_PIXEL_FORMAT_CbYCrY_422_I       = 0x16,
++    HAL_PIXEL_FORMAT_CbYCrY_420_I       = 0x17,
++    HAL_PIXEL_FORMAT_YCbCr_420_SP_TILED = 0x20,
++    HAL_PIXEL_FORMAT_YCbCr_420_SP       = 0x21,
++    HAL_PIXEL_FORMAT_YCrCb_420_SP_TILED = 0x22,
++    HAL_PIXEL_FORMAT_YCrCb_422_SP       = 0x23,
++    HAL_PIXEL_FORMAT_YCrCb_422_P        = 0x24,
++    HAL_PIXEL_FORMAT_YCrCb_420_P        = 0x25,
++    /* STE: Added Support of YUV42XMBN, required for Copybit CC acceleration */
++    HAL_PIXEL_FORMAT_YCBCR42XMBN = 0xE,
++#endif
+ } android_pixel_format_t;
+ 
+ /*
+diff --git a/include/utils/Flattenable.h b/include/utils/Flattenable.h
+index 882a8b2..495b90d 100644
+--- a/include/utils/Flattenable.h
++++ b/include/utils/Flattenable.h
+@@ -79,21 +79,35 @@ public:
+  * Flattenable objects must implement this protocol.
+  */
+ 
++#ifndef STE_HARDWARE
+ template <typename T>
++#endif
+ class Flattenable {
+ public:
+     // size in bytes of the flattened object
++#ifdef STE_HARDWARE
++    virtual size_t getFlattenedSize() const = 0;
++#else
+     inline size_t getFlattenedSize() const;
++#endif
+ 
+     // number of file descriptors to flatten
++#ifdef STE_HARDWARE
++    virtual size_t getFdCount() const = 0;
++#else
+     inline size_t getFdCount() const;
++#endif
+ 
+     // flattens the object into buffer.
+     // size should be at least of getFlattenedSize()
+     // file descriptors are written in the fds[] array but ownership is
+     // not transfered (ie: they must be dupped by the caller of
+     // flatten() if needed).
++#ifdef STE_HARDWARE
++    virtual status_t flatten(void*& buffer, size_t& size, int*& fds, size_t& count) const = 0;
++#else
+     inline status_t flatten(void*& buffer, size_t& size, int*& fds, size_t& count) const;
++#endif
+ 
+     // unflattens the object from buffer.
+     // size should be equal to the value of getFlattenedSize() when the
+@@ -102,6 +116,13 @@ public:
+     // don't need to be dupped(). ie: the caller of unflatten doesn't
+     // keep ownership. If a fd is not retained by unflatten() it must be
+     // explicitly closed.
++#ifdef STE_HARDWARE
++    virtual status_t unflatten(void const*& buffer, size_t& size, int const*& fds, size_t& count) = 0;
++
++protected:
++    virtual ~Flattenable() = 0;
++};
++#else
+     inline status_t unflatten(void const*& buffer, size_t& size, int const*& fds, size_t& count);
+ };
+ 
+@@ -123,6 +144,7 @@ inline status_t Flattenable<T>::unflatten(
+         void const*& buffer, size_t& size, int const*& fds, size_t& count) {
+     return static_cast<T*>(this)->T::unflatten(buffer, size, fds, count);
+ }
++#endif
+ 
+ /*
+  * LightFlattenable is a protocol allowing object to serialize themselves out
+diff --git a/include/utils/Singleton.h b/include/utils/Singleton.h
+index ffc03cb..652286a 100644
+--- a/include/utils/Singleton.h
++++ b/include/utils/Singleton.h
+@@ -51,6 +51,8 @@ protected:
+ private:
+     Singleton(const Singleton&);
+     Singleton& operator = (const Singleton&);
++
++public:
+     static Mutex sLock;
+     static TYPE* sInstance;
+ };
+diff --git a/include/utils/VectorImpl.h b/include/utils/VectorImpl.h
+index 21ad71c..88c3a05 100644
+--- a/include/utils/VectorImpl.h
++++ b/include/utils/VectorImpl.h
+@@ -105,7 +105,19 @@ protected:
+     virtual void            do_splat(void* dest, const void* item, size_t num) const = 0;
+     virtual void            do_move_forward(void* dest, const void* from, size_t num) const = 0;
+     virtual void            do_move_backward(void* dest, const void* from, size_t num) const = 0;
+-    
++
++#ifdef NEEDS_VECTORIMPL_SYMBOLS
++    // take care of FBC...
++    virtual void            reservedVectorImpl1();
++    virtual void            reservedVectorImpl2();
++    virtual void            reservedVectorImpl3();
++    virtual void            reservedVectorImpl4();
++    virtual void            reservedVectorImpl5();
++    virtual void            reservedVectorImpl6();
++    virtual void            reservedVectorImpl7();
++    virtual void            reservedVectorImpl8();
++#endif
++
+ private:
+         void* _grow(size_t where, size_t amount);
+         void  _shrink(size_t where, size_t amount);
+@@ -156,6 +168,18 @@ public:
+ protected:
+     virtual int             do_compare(const void* lhs, const void* rhs) const = 0;
+ 
++#ifdef NEEDS_VECTORIMPL_SYMBOLS
++    // take care of FBC...
++    virtual void            reservedSortedVectorImpl1();
++    virtual void            reservedSortedVectorImpl2();
++    virtual void            reservedSortedVectorImpl3();
++    virtual void            reservedSortedVectorImpl4();
++    virtual void            reservedSortedVectorImpl5();
++    virtual void            reservedSortedVectorImpl6();
++    virtual void            reservedSortedVectorImpl7();
++    virtual void            reservedSortedVectorImpl8();
++#endif
++
+ private:
+             ssize_t         _indexOrderOf(const void* item, size_t* order = 0) const;
+ 
+diff --git a/init/Android.mk b/init/Android.mk
+index 0f5fe1c..0189ecd 100644
+--- a/init/Android.mk
++++ b/init/Android.mk
+@@ -4,12 +4,7 @@ LOCAL_PATH:= $(call my-dir)
+ 
+ # --
+ 
+-ifneq (,$(filter userdebug eng,$(TARGET_BUILD_VARIANT)))
+ init_options += -DALLOW_LOCAL_PROP_OVERRIDE=1 -DALLOW_PERMISSIVE_SELINUX=1
+-else
+-init_options += -DALLOW_LOCAL_PROP_OVERRIDE=0 -DALLOW_PERMISSIVE_SELINUX=0
+-endif
+-
+ init_options += -DLOG_UEVENTS=0
+ 
+ ifneq ($(TARGET_INIT_COLDBOOT_TIMEOUT),)
+diff --git a/init/init.cpp b/init/init.cpp
+old mode 100755
+new mode 100644
+index 9992b47..0ebe218
+--- a/init/init.cpp
++++ b/init/init.cpp
+@@ -366,7 +366,7 @@ static void export_kernel_boot_props() {
+         { "ro.boot.mode",       "ro.bootmode",   "unknown", },
+         { "ro.boot.baseband",   "ro.baseband",   "unknown", },
+         { "ro.boot.bootloader", "ro.bootloader", "unknown", },
+-        { "ro.boot.hardware",   "ro.hardware",   "unknown", },
++        { "ro.boot.hardware",   "ro.hardware",   "samsungcodina", },
+ #ifndef IGNORE_RO_BOOT_REVISION
+         { "ro.boot.revision",   "ro.revision",   "0", },
+ #endif
+@@ -417,6 +417,7 @@ static void process_kernel_cmdline() {
+     // as properties.
+     import_kernel_cmdline(false, import_kernel_nv);
+     if (qemu[0]) import_kernel_cmdline(true, import_kernel_nv);
++    property_set("ro.boot.hardware","samsungcodina");
+ }
+ 
+ static int queue_property_triggers_action(const std::vector<std::string>& args)
+@@ -426,18 +427,18 @@ static int queue_property_triggers_action(const std::vector<std::string>& args)
+     property_triggers_enabled = 1;
+     return 0;
+ }
+-
++/*
+ static void selinux_init_all_handles(void)
+ {
+     sehandle = selinux_android_file_context_handle();
+     selinux_android_set_sehandle(sehandle);
+     sehandle_prop = selinux_android_prop_context_handle();
+ }
+-
++*/
+ enum selinux_enforcing_status { SELINUX_PERMISSIVE, SELINUX_ENFORCING };
+-
++/*
+ static selinux_enforcing_status selinux_status_from_cmdline() {
+-    selinux_enforcing_status status = SELINUX_ENFORCING;
++    selinux_enforcing_status status = SELINUX_PERMISSIVE;
+ 
+     import_kernel_cmdline(false, [&](const std::string& key, const std::string& value, bool in_qemu) {
+         if (key == "androidboot.selinux" && value == "permissive") {
+@@ -447,17 +448,22 @@ static selinux_enforcing_status selinux_status_from_cmdline() {
+ 
+     return status;
+ }
++*/
+ 
++/*
+ static bool selinux_is_enforcing(void)
+ {
++    return false;
+     if (ALLOW_PERMISSIVE_SELINUX) {
+         return selinux_status_from_cmdline() == SELINUX_ENFORCING;
+     }
+     return true;
+-}
++}*/
+ 
+ int selinux_reload_policy(void)
+ {
++    return -1;
++/*
+     INFO("SELinux: Attempting to reload policy files\n");
+ 
+     if (selinux_android_reload_policy() == -1) {
+@@ -472,6 +478,7 @@ int selinux_reload_policy(void)
+ 
+     selinux_init_all_handles();
+     return 0;
++*/
+ }
+ 
+ static int audit_callback(void *data, security_class_t /*cls*/, char *buf, size_t len) {
+@@ -490,8 +497,8 @@ static int audit_callback(void *data, security_class_t /*cls*/, char *buf, size_
+ 
+ static void security_failure() {
+     ERROR("Security failure; rebooting into recovery mode...\n");
+-    android_reboot(ANDROID_RB_RESTART2, 0, "recovery");
+-    while (true) { pause(); }  // never reached
++    //android_reboot(ANDROID_RB_RESTART2, 0, "recovery");
++    //while (true) { pause(); }  // never reached
+ }
+ 
+ static void selinux_initialize(bool in_kernel_domain) {
+@@ -502,7 +509,8 @@ static void selinux_initialize(bool in_kernel_domain) {
+     selinux_set_callback(SELINUX_CB_LOG, cb);
+     cb.func_audit = audit_callback;
+     selinux_set_callback(SELINUX_CB_AUDIT, cb);
+-
++    return;
++    /*
+     if (in_kernel_domain) {
+         INFO("Loading SELinux policy...\n");
+         if (selinux_android_load_policy() < 0) {
+@@ -529,6 +537,7 @@ static void selinux_initialize(bool in_kernel_domain) {
+     } else {
+         selinux_init_all_handles();
+     }
++*/
+ }
+ 
+ static int charging_mode_booting(void) {
+diff --git a/init/property_service.cpp b/init/property_service.cpp
+index 8644329..bafc7a4 100644
+--- a/init/property_service.cpp
++++ b/init/property_service.cpp
+@@ -67,7 +67,7 @@ static int property_set_fd = -1;
+ void property_init() {
+     if (__system_property_area_init()) {
+         ERROR("Failed to initialize property area\n");
+-        exit(1);
++        //exit(1);
+     }
+ }
+ 
+@@ -322,15 +322,17 @@ static void handle_property_set_fd()
+             if (check_control_mac_perms(msg.value, source_ctx, &cr)) {
+                 handle_control_message((char*) msg.name + 4, (char*) msg.value);
+             } else {
+-                ERROR("sys_prop: Unable to %s service ctl [%s] uid:%d gid:%d pid:%d\n",
+-                        msg.name + 4, msg.value, cr.uid, cr.gid, cr.pid);
++                //ERROR("sys_prop: Unable to %s service ctl [%s] uid:%d gid:%d pid:%d\n",
++                //        msg.name + 4, msg.value, cr.uid, cr.gid, cr.pid);
++		handle_control_message((char*) msg.name + 4, (char*) msg.value);
+             }
+         } else {
+             if (check_mac_perms(msg.name, source_ctx, &cr)) {
+                 property_set((char*) msg.name, (char*) msg.value);
+             } else {
+-                ERROR("sys_prop: permission denied uid:%d  name:%s\n",
+-                      cr.uid, msg.name);
++                //ERROR("sys_prop: permission denied uid:%d  name:%s\n",
++                //      cr.uid, msg.name);
++		property_set((char*) msg.name, (char*) msg.value);
+             }
+ 
+             // Note: bionic's property client code assumes that the
+@@ -561,7 +563,7 @@ void start_property_service() {
+                                     0666, 0, 0, NULL);
+     if (property_set_fd == -1) {
+         ERROR("start_property_service socket creation failed: %s\n", strerror(errno));
+-        exit(1);
++        //exit(1);
+     }
+ 
+     listen(property_set_fd, 8);
+diff --git a/init/screen.png b/init/screen.png
+new file mode 100644
+index 0000000..4d02b87
+Binary files /dev/null and b/init/screen.png differ
+diff --git a/init/service.cpp b/init/service.cpp
+index 76e0bc8..c88fe57 100644
+--- a/init/service.cpp
++++ b/init/service.cpp
+@@ -354,14 +354,14 @@ bool Service::Start() {
+         int rc = getcon(&mycon);
+         if (rc < 0) {
+             ERROR("could not get context while starting '%s'\n", name_.c_str());
+-            return false;
++            //return false;
+         }
+ 
+         rc = getfilecon(args_[0].c_str(), &fcon);
+         if (rc < 0) {
+             ERROR("could not get context while starting '%s'\n", name_.c_str());
+             free(mycon);
+-            return false;
++            //return false;
+         }
+ 
+         char* ret_scon = nullptr;
+@@ -371,17 +371,11 @@ bool Service::Start() {
+             scon = ret_scon;
+             free(ret_scon);
+         }
+-        if (rc == 0 && scon == mycon) {
+-            ERROR("Service %s does not have a SELinux domain defined.\n", name_.c_str());
+-            free(mycon);
+-            free(fcon);
+-            return false;
+-        }
+         free(mycon);
+         free(fcon);
+         if (rc < 0) {
+             ERROR("could not get context while starting '%s'\n", name_.c_str());
+-            return false;
++            //return false;
+         }
+     }
+ 
+diff --git a/libcutils/fs_config.c b/libcutils/fs_config.c
+index 68cfcbe..6c18bca 100644
+--- a/libcutils/fs_config.c
++++ b/libcutils/fs_config.c
+@@ -97,10 +97,12 @@ static const struct fs_path_config android_dirs[] = {
+     { 00755, AID_ROOT,   AID_ROOT,   0, "root" },
+     { 00750, AID_ROOT,   AID_SHELL,  0, "sbin" },
+     { 00751, AID_ROOT,   AID_SDCARD_R, 0, "storage" },
++    { 00755, AID_ROOT,   AID_ROOT,   0, "system/addon.d" },
+     { 00755, AID_ROOT,   AID_SHELL,  0, "system/bin" },
+     { 00755, AID_ROOT,   AID_SHELL,  0, "system/vendor" },
+     { 00755, AID_ROOT,   AID_SHELL,  0, "system/xbin" },
+     { 00755, AID_ROOT,   AID_ROOT,   0, "system/etc/ppp" },
++    { 00755, AID_ROOT,   AID_SHELL,  0, "system/etc/init.d" },
+     { 00755, AID_ROOT,   AID_SHELL,  0, "vendor" },
+     { 00777, AID_ROOT,   AID_ROOT,   0, "sdcard" },
+     { 00755, AID_ROOT,   AID_ROOT,   0, 0 },
+@@ -122,6 +124,7 @@ static const struct fs_path_config android_files[] = {
+     { 00555, AID_ROOT,      AID_ROOT,      0, "system/etc/ppp/*" },
+     { 00555, AID_ROOT,      AID_ROOT,      0, "system/etc/rc.*" },
+     { 00440, AID_ROOT,      AID_ROOT,      0, "system/etc/recovery.img" },
++    { 00755, AID_ROOT,      AID_ROOT,      0, "system/addon.d/*" },
+     { 00444, AID_ROOT,      AID_ROOT,      0, conf_dir + 1 },
+     { 00444, AID_ROOT,      AID_ROOT,      0, conf_file + 1 },
+     { 00644, AID_SYSTEM,    AID_SYSTEM,    0, "data/app/*" },
+diff --git a/libutils/Android.mk b/libutils/Android.mk
+index 84bac32..60cd53f 100644
+--- a/libutils/Android.mk
++++ b/libutils/Android.mk
+@@ -37,6 +37,12 @@ commonSources:= \
+ 	VectorImpl.cpp \
+ 	misc.cpp \
+ 
++
++ifeq ($(BOARD_USES_STE_HARDWARE),true)
++	commonSources += Flattenable.cpp
++endif
++
++
+ host_commonCflags := -DLIBUTILS_NATIVE=1 $(TOOL_CFLAGS) -Werror
+ 
+ # For the host
+diff --git a/libutils/Flattenable.cpp b/libutils/Flattenable.cpp
+new file mode 100644
+index 0000000..1f2ffaa
+--- /dev/null
++++ b/libutils/Flattenable.cpp
+@@ -0,0 +1,24 @@
++/*
++ * Copyright (C) 2006 The Android Open Source Project
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++#include <utils/Flattenable.h>
++
++namespace android {
++
++Flattenable::~Flattenable() {
++}
++
++}; // namespace android
+diff --git a/libutils/VectorImpl.cpp b/libutils/VectorImpl.cpp
+index e8d40ed..c149212 100644
+--- a/libutils/VectorImpl.cpp
++++ b/libutils/VectorImpl.cpp
+@@ -556,6 +556,17 @@ void VectorImpl::_do_move_backward(void* dest, const void* from, size_t num) con
+     do_move_backward(dest, from, num);
+ }
+ 
++#ifdef NEEDS_VECTORIMPL_SYMBOLS
++void VectorImpl::reservedVectorImpl1() { }
++void VectorImpl::reservedVectorImpl2() { }
++void VectorImpl::reservedVectorImpl3() { }
++void VectorImpl::reservedVectorImpl4() { }
++void VectorImpl::reservedVectorImpl5() { }
++void VectorImpl::reservedVectorImpl6() { }
++void VectorImpl::reservedVectorImpl7() { }
++void VectorImpl::reservedVectorImpl8() { }
++#endif
++
+ /*****************************************************************************/
+ 
+ SortedVectorImpl::SortedVectorImpl(size_t itemSize, uint32_t flags)
+@@ -675,6 +686,17 @@ ssize_t SortedVectorImpl::remove(const void* item)
+     return i;
+ }
+ 
++#ifdef NEEDS_VECTORIMPL_SYMBOLS
++void SortedVectorImpl::reservedSortedVectorImpl1() { };
++void SortedVectorImpl::reservedSortedVectorImpl2() { };
++void SortedVectorImpl::reservedSortedVectorImpl3() { };
++void SortedVectorImpl::reservedSortedVectorImpl4() { };
++void SortedVectorImpl::reservedSortedVectorImpl5() { };
++void SortedVectorImpl::reservedSortedVectorImpl6() { };
++void SortedVectorImpl::reservedSortedVectorImpl7() { };
++void SortedVectorImpl::reservedSortedVectorImpl8() { };
++#endif
++
+ /*****************************************************************************/
+ 
+ }; // namespace android
+diff --git a/rootdir/init.rc b/rootdir/init.rc
+index ec9ba99..523bb98 100644
+--- a/rootdir/init.rc
++++ b/rootdir/init.rc
+@@ -9,7 +9,7 @@ import /init.usb.rc
+ import /init.${ro.hardware}.rc
+ import /init.usb.configfs.rc
+ import /init.${ro.zygote}.rc
+-
++import /init.kernel.rc
+ # Include CM's extra init file
+ import /init.cm.rc
+ 
+@@ -664,12 +664,12 @@ on property:ro.debuggable=1
+     chmod 0773 /data/misc/trace
+     start console
+ 
+-service flash_recovery /system/bin/install-recovery.sh
+-    class main
+-    oneshot
+-    disabled
++#service flash_recovery /system/bin/install-recovery.sh
++#    class main
++#    oneshot
++#    disabled
+ 
+ # update recovery if enabled
+-on property:persist.sys.recovery_update=true
+-    start flash_recovery
++#on property:persist.sys.recovery_update=true
++#    start flash_recovery
+ 
+diff --git a/sdcard/sdcard.c b/sdcard/sdcard.c
+index 10f78ea..c5f6b08 100644
+--- a/sdcard/sdcard.c
++++ b/sdcard/sdcard.c
+@@ -1963,8 +1963,7 @@ static int sdcardfs_setup(const char *source_path, const char *dest_path, uid_t
+     char opts[256];
+ 
+     snprintf(opts, sizeof(opts),
+-            "fsuid=%d,fsgid=%d,%smask=%d,userid=%d,gid=%d",
+-            fsuid, fsgid, multi_user?"multiuser,":"", mask, userid, gid);
++            "uid=1023,gid=1023,wgid=1023,derive=unified");
+ 
+     if (mount(source_path, dest_path, "sdcardfs",
+                         MS_NOSUID | MS_NODEV | MS_NOEXEC | MS_NOATIME, opts) != 0) {

@@ -1,0 +1,13 @@
+diff --git a/src/com/android/settings/DevelopmentSettings.java b/src/com/android/settings/DevelopmentSettings.java
+index 12fa1ba..e7f78cb 100644
+--- a/src/com/android/settings/DevelopmentSettings.java
++++ b/src/com/android/settings/DevelopmentSettings.java
+@@ -1921,7 +1921,7 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
+ 
+     private void writeAnimationScaleOption(int which, ListPreference pref, Object newValue) {
+         try {
+-            float scale = newValue != null ? Float.parseFloat(newValue.toString()) : 1;
++            float scale = newValue != null ? Float.parseFloat(newValue.toString()) : 0.5f;
+             mWindowManager.setAnimationScale(which, scale);
+             updateAnimationScaleValue(which, pref);
+         } catch (RemoteException e) {

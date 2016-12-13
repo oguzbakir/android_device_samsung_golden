@@ -25,6 +25,7 @@
 #include <errno.h>
 
 #include <telephony/ril.h>
+#include <libril/ril_ex.h>
 #define LOG_TAG "RILD"
 #include <utils/Log.h>
 #include <cutils/properties.h>
@@ -50,6 +51,9 @@ extern char rild[MAX_SOCKET_NAME_LENGTH] __attribute__((weak));
 #endif
 
 extern void RIL_register (const RIL_RadioFunctions *callbacks);
+
+extern void RIL_register_socket (RIL_RadioFunctions *(*rilUimInit)
+        (const struct RIL_Env *, int, char **), RIL_SOCKET_TYPE socketType, int argc, char **argv);
 
 extern void RIL_onRequestComplete(RIL_Token t, RIL_Errno e,
                            void *response, size_t responselen);
