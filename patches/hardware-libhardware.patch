@@ -1,0 +1,128 @@
+diff --git a/include/hardware/audio.h b/include/hardware/audio.h
+index ceaab09..2cddc83 100644
+--- a/include/hardware/audio.h
++++ b/include/hardware/audio.h
+@@ -611,6 +611,19 @@ struct audio_hw_device {
+     void (*close_output_stream)(struct audio_hw_device *dev,
+                                 struct audio_stream_out* stream_out);
+ 
++#ifdef STE_SAMSUNG_HARDWARE
++    /** This method creates and opens the audio hardware output
++     *  for broadcast stream */
++    int (*open_broadcast_stream)(struct audio_hw_device *dev, uint32_t devices,
++                                 int format, uint32_t channels,
++                                 uint32_t sample_rate,
++                                 uint32_t audio_source,
++                                 struct audio_broadcast_stream **out);
++
++    void (*close_broadcast_stream)(struct audio_hw_device *dev,
++                                   struct audio_broadcast_stream *out);
++#endif
++
+     /** This method creates and opens the audio hardware input stream */
+     int (*open_input_stream)(struct audio_hw_device *dev,
+                              audio_io_handle_t handle,
+diff --git a/include/hardware/fb.h b/include/hardware/fb.h
+index 9df9416..d07a2c4 100644
+--- a/include/hardware/fb.h
++++ b/include/hardware/fb.h
+@@ -48,18 +48,32 @@ typedef struct framebuffer_device_t {
+     const uint32_t  flags;
+ 
+     /* dimensions of the framebuffer in pixels */
++#ifdef STE_HARDWARE
++    uint32_t        width;
++    uint32_t        height;
++#else
+     const uint32_t  width;
+     const uint32_t  height;
++#endif
+ 
+     /* frambuffer stride in pixels */
++#ifdef STE_HARDWARE
++    int             stride;
++#else
+     const int       stride;
++#endif
+ 
+     /* framebuffer pixel format */
+     const int       format;
+ 
+     /* resolution of the framebuffer's display panel in pixel per inch*/
++#ifdef STE_HARDWARE
++    float           xdpi;
++    float           ydpi;
++#else
+     const float     xdpi;
+     const float     ydpi;
++#endif
+ 
+     /* framebuffer's display panel refresh rate in frames per second */
+     const float     fps;
+@@ -150,6 +164,27 @@ typedef struct framebuffer_device_t {
+      */
+     int (*enableScreen)(struct framebuffer_device_t* dev, int enable);
+ 
++#ifdef STE_HARDWARE
++    /*
++     * Sets the number of degrees ccw the framebuffer shall be rotated before
++     * being sent to the display. This call may change the framebuffer's
++     * dimensions.
++     */
++    int (*rotate)(struct framebuffer_device_t* dev, unsigned int absolute_degree);
++
++    /*
++     * Informs gralloc about the UI rotation. This is needed in the mirroring use
++     * case to get the correct orientation on the external device, e.g. HDMI.
++     */
++    void (*UIRotationChange)(struct framebuffer_device_t* dev, int uiRotation);
++
++    /*
++     * Enables the mirroring of the main display content to an external device,
++     * e.g. HDMI.
++     */
++    void (*enableHDMIMirroring)(struct framebuffer_device_t* dev, int enable);
++#endif
++
+     void* reserved_proc[6];
+ 
+ } framebuffer_device_t;
+diff --git a/include/hardware/gps.h b/include/hardware/gps.h
+index acf601b..d88b6da 100644
+--- a/include/hardware/gps.h
++++ b/include/hardware/gps.h
+@@ -507,6 +507,13 @@ typedef uint8_t                         GnssConstellationType;
+  */
+ #define GPS_GEOFENCING_INTERFACE   "gps_geofencing"
+ 
++#ifdef STE_SAMSUNG_HARDWARE
++/**
++ * The GPS chipset can use Psc for AGPS.
++ */
++#define AGPS_USE_PSC
++#endif
++
+ /**
+  * Name of the GPS Measurements interface.
+  */
+@@ -570,6 +577,10 @@ typedef struct {
+     float   elevation;
+     /** Azimuth of SV in degrees. */
+     float   azimuth;
++#ifdef STE_SAMSUNG_HARDWARE
++    /** Unknown Samsung element. */
++    int     padding;
++#endif
+ } GpsSvInfo;
+ 
+ typedef struct {
+@@ -664,6 +675,9 @@ typedef struct {
+      * might rely in the old (wrong) behavior.
+      */
+     uint16_t lac;
++#ifdef AGPS_USE_PSC
++    uint16_t psc;
++#endif
+     /** Cell id in 2G. Utran Cell id in 3G. Cell Global Id EUTRA in LTE. */
+     uint32_t cid;
+     /** Tracking Area Code in LTE. */
