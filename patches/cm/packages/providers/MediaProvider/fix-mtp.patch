@@ -1,0 +1,21 @@
+diff --git a/src/com/android/providers/media/MtpService.java b/src/com/android/providers/media/MtpService.java
+index bce18c8..bef79b9 100644
+--- a/src/com/android/providers/media/MtpService.java
++++ b/src/com/android/providers/media/MtpService.java
+@@ -216,12 +216,14 @@ public class MtpService extends Service {
+             StorageVolume volume = mVolumes[i];
+             if (volume.getPath().equals(path)) {
+                 mVolumeMap.put(path, volume);
+-                if (!mMtpDisabled) {
++                /*if (!mMtpDisabled) {
+                     // In PTP mode we support only primary storage
+-                    if (volume.isPrimary() || !mPtpMode) {
++                    if (volume.isPrimary() || !mPtpMode) {*/
+                         addStorageLocked(volume);
++		/*
+                     }
+                 }
++		*/
+                 break;
+             }
+         }
