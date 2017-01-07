@@ -35,11 +35,11 @@ PRODUCT_COPY_FILES += \
 
 # Ramdisk
 PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/rootdir/init.samsungcodina.rc:root/init.samsungcodina.rc \
-    $(LOCAL_PATH)/rootdir/ueventd.samsungcodina.rc:root/ueventd.samsungcodina.rc \
-    $(LOCAL_PATH)/rootdir/fstab.samsungcodina:root/fstab.samsungcodina \
+    $(LOCAL_PATH)/rootdir/init.samsunggolden.rc:root/init.samsunggolden.rc \
+    $(LOCAL_PATH)/rootdir/ueventd.samsunggolden.rc:root/ueventd.samsunggolden.rc \
+    $(LOCAL_PATH)/rootdir/fstab.samsunggolden:root/fstab.samsunggolden \
     $(LOCAL_PATH)/rootdir/init.ste.rc:root/init.ste.rc \
-    $(LOCAL_PATH)/rootdir/init.samsungcodina.usb.rc:root/init.samsungcodina.usb.rc \
+    $(LOCAL_PATH)/rootdir/init.samsunggolden.usb.rc:root/init.samsunggolden.usb.rc \
     $(LOCAL_PATH)/rootdir/lpm.rc:root/lpm.rc
 
 # Recovery ramdisk, libraries and modules.
