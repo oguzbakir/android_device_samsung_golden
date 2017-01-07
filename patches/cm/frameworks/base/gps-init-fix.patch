@@ -1,12 +1,19 @@
-diff --git a/services/core/java/com/android/server/location/GpsLocationProvider.java b/services/core/java/com/android/server/location/GpsLocationProvider.java
-index bdd7d23..5bb2f12 100644
---- a/services/core/java/com/android/server/location/GpsLocationProvider.java
-+++ b/services/core/java/com/android/server/location/GpsLocationProvider.java
-@@ -1120,6 +1120,7 @@ public class GpsLocationProvider implements LocationProviderInterface {
+diff --git a/services/core/java/com/android/server/location/GnssLocationProvider.java b/services/core/java/com/android/server/location/GnssLocationProvider.java
+index 1b08008..13ab0d5 100644
+--- a/services/core/java/com/android/server/location/GnssLocationProvider.java
++++ b/services/core/java/com/android/server/location/GnssLocationProvider.java
+@@ -1085,11 +1085,11 @@ public class GnssLocationProvider implements LocationProviderInterface {
+                 Log.e(TAG, "unable to parse SUPL_PORT: " + portString);
              }
          }
-         if (mSuplServerHost != null
-+		&& false
+-        if (mSuplServerHost != null
++       /* if (mSuplServerHost != null
                  && mSuplServerPort > TCP_MIN_PORT
                  && mSuplServerPort <= TCP_MAX_PORT) {
              native_set_agps_server(AGPS_TYPE_SUPL, mSuplServerHost, mSuplServerPort);
+-        }
++        }*/
+     }
+ 
+     /**
+

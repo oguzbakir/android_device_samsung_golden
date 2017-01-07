@@ -960,15 +960,6 @@ diff --git a/libs/ui/Android.mk b/libs/ui/Android.mk
 index 17a1c54..3cb1ee4 100644
 --- a/libs/ui/Android.mk
 +++ b/libs/ui/Android.mk
-@@ -17,7 +17,7 @@ include $(CLEAR_VARS)
- 
- LOCAL_CLANG := true
- LOCAL_CPPFLAGS := -std=c++1y -Weverything
--# LOCAL_SANITIZE := integer
-+LOCAL_SANITIZE := integer
- 
- # The static constructors and destructors in this library have not been noted to
- # introduce significant overheads
 @@ -38,7 +38,6 @@ LOCAL_CPPFLAGS += -Wno-padded
  	Fence.cpp \
  	FramebufferNativeWindow.cpp \
