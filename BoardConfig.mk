@@ -153,7 +153,7 @@ BOARD_GLOBAL_CFLAGS += -DNEEDS_VECTORIMPL_SYMBOLS -DADD_LEGACY_ACQUIRE_BUFFER_SY
 #RECOVERY_VARIANT := twrp
 BOARD_UMS_LUNFILE := "/sys/devices/platform/musb-ux500.0/musb-hdrc/gadget/lun0/file"
 TARGET_USE_CUSTOM_LUN_FILE_PATH := "/sys/devices/platform/musb-ux500.0/musb-hdrc/gadget/lun%d/file"
-TARGET_RECOVERY_FSTAB := device/samsung/golden/rootdir/fstab.samsungcodina
+TARGET_RECOVERY_FSTAB := device/samsung/golden/rootdir/fstab.samsunggolden
 BOARD_HAS_NO_MISC_PARTITION := true
 
 BOARD_HAS_NO_SELECT_BUTTON := true

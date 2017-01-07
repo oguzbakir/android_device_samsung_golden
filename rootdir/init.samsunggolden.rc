@@ -1,7 +1,7 @@
 # NOTE: This file contains ST-Ericsson related additions/modifications/deletions to init.rc
 #       Commented out lines are kept for reference.
 
-import /init.samsungcodina.usb.rc
+import /init.samsunggolden.usb.rc
 import /init.ste.rc
 
 on init
@@ -67,8 +67,8 @@ on charger
 
 on fs
 
-    mount_all /fstab.samsungcodina
-    swapon_all fstab.samsungcodina
+    mount_all /fstab.samsunggolden
+    swapon_all fstab.samsunggolden
     setprop ro.crypto.fuse_sdcard true
     start cspsa
     write /sys/class/android_usb/android0/enable 0
@@ -572,3 +572,5 @@ service iprenew_bt-pan /system/bin/dhcpcd -n
 	class main
 	disabled
 	oneshot
+on property:sys.shutdown.requested=*
+    stop ril-daemon
