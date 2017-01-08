@@ -1,19 +1,3 @@
-diff --git a/healthd/Android.mk b/healthd/Android.mk
-index b923724..c431b79 100644
---- a/healthd/Android.mk
-+++ b/healthd/Android.mk
-@@ -81,9 +81,9 @@ ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
- BOARD_HAL_STATIC_LIBRARIES ?= libhealthd.qcom
- endif
- 
--# Symlink /charger to /sbin/healthd
-+# Symlink /charger to /sbin/charger
- LOCAL_POST_INSTALL_CMD := $(hide) mkdir -p $(TARGET_ROOT_OUT) \
--    && rm -f $(TARGET_ROOT_OUT)/charger && ln -sf /sbin/healthd $(TARGET_ROOT_OUT)/charger
-+    && rm -f $(TARGET_ROOT_OUT)/charger && ln -sf /sbin/charger $(TARGET_ROOT_OUT)/charger
- 
- include $(BUILD_EXECUTABLE)
- 
 diff --git a/include/private/android_filesystem_config.h b/include/private/android_filesystem_config.h
 index f03346e..3da1476 100644
 --- a/include/private/android_filesystem_config.h
@@ -30,6 +14,103 @@ index f03346e..3da1476 100644
  #define AID_FIREWALL      1048  /* firewalld process */
  #define AID_TRUNKS        1049  /* trunksd process (TPM daemon) */
  #define AID_NVRAM         1050  /* Access-controlled NVRAM */
+diff --git a/include/system/graphics.h b/include/system/graphics.h
+index 529a562..7526624 100644
+--- a/include/system/graphics.h
++++ b/include/system/graphics.h
+@@ -58,6 +58,8 @@ typedef enum android_pixel_format {
+     HAL_PIXEL_FORMAT_RGB_888            = 3,
+     HAL_PIXEL_FORMAT_RGB_565            = 4,
+     HAL_PIXEL_FORMAT_BGRA_8888          = 5,
++    HAL_PIXEL_FORMAT_RGBA_5551          = 6,
++    HAL_PIXEL_FORMAT_RGBA_4444          = 7,
+ 
+     /*
+      * 0x100 - 0x1FF
+@@ -441,6 +443,21 @@ typedef enum android_pixel_format {
+     HAL_PIXEL_FORMAT_YCbCr_422_SP       = 0x10, // NV16
+     HAL_PIXEL_FORMAT_YCrCb_420_SP       = 0x11, // NV21
+     HAL_PIXEL_FORMAT_YCbCr_422_I        = 0x14, // YUY2
++#ifdef STE_HARDWARE
++    HAL_PIXEL_FORMAT_YCbCr_422_P        = 0x12,
++    HAL_PIXEL_FORMAT_YCbCr_420_P        = 0x13,
++    HAL_PIXEL_FORMAT_YCbCr_420_I        = 0x15,
++    HAL_PIXEL_FORMAT_CbYCrY_422_I       = 0x16,
++    HAL_PIXEL_FORMAT_CbYCrY_420_I       = 0x17,
++    HAL_PIXEL_FORMAT_YCbCr_420_SP_TILED = 0x20,
++    HAL_PIXEL_FORMAT_YCbCr_420_SP       = 0x21,
++    HAL_PIXEL_FORMAT_YCrCb_420_SP_TILED = 0x22,
++    HAL_PIXEL_FORMAT_YCrCb_422_SP       = 0x23,
++    HAL_PIXEL_FORMAT_YCrCb_422_P        = 0x24,
++    HAL_PIXEL_FORMAT_YCrCb_420_P        = 0x25,
++    /* STE: Added Support of YUV42XMBN, required for Copybit CC acceleration */
++    HAL_PIXEL_FORMAT_YCBCR42XMBN = 0xE,
++#endif
+ } android_pixel_format_t;
+ 
+ /*
+diff --git a/include/utils/Flattenable.h b/include/utils/Flattenable.h
+index 882a8b2..495b90d 100644
+--- a/include/utils/Flattenable.h
++++ b/include/utils/Flattenable.h
+@@ -79,21 +79,35 @@ public:
+  * Flattenable objects must implement this protocol.
+  */
+ 
++#ifndef STE_HARDWARE
+ template <typename T>
++#endif
+ class Flattenable {
+ public:
+     // size in bytes of the flattened object
++#ifdef STE_HARDWARE
++    virtual size_t getFlattenedSize() const = 0;
++#else
+     inline size_t getFlattenedSize() const;
++#endif
+ 
+     // number of file descriptors to flatten
++#ifdef STE_HARDWARE
++    virtual size_t getFdCount() const = 0;
++#else
+     inline size_t getFdCount() const;
++#endif
+ 
+     // flattens the object into buffer.
+     // size should be at least of getFlattenedSize()
+     // file descriptors are written in the fds[] array but ownership is
+     // not transfered (ie: they must be dupped by the caller of
+     // flatten() if needed).
++#ifdef STE_HARDWARE
++    virtual status_t flatten(void*& buffer, size_t& size, int*& fds, size_t& count) const = 0;
++#else
+     inline status_t flatten(void*& buffer, size_t& size, int*& fds, size_t& count) const;
++#endif
+ 
+     // unflattens the object from buffer.
+     // size should be equal to the value of getFlattenedSize() when the
+@@ -102,6 +116,13 @@ public:
+     // don't need to be dupped(). ie: the caller of unflatten doesn't
+     // keep ownership. If a fd is not retained by unflatten() it must be
+     // explicitly closed.
++#ifdef STE_HARDWARE
++    virtual status_t unflatten(void const*& buffer, size_t& size, int const*& fds, size_t& count) = 0;
++
++protected:
++    virtual ~Flattenable() = 0;
++};
++#else
+     inline status_t unflatten(void const*& buffer, size_t& size, int const*& fds, size_t& count);
+ };
+ 
+@@ -123,6 +144,7 @@ inline status_t Flattenable<T>::unflatten(
+         void const*& buffer, size_t& size, int const*& fds, size_t& count) {
+     return static_cast<T*>(this)->T::unflatten(buffer, size, fds, count);
+ }
++#endif
+ 
+ /*
+  * LightFlattenable is a protocol allowing object to serialize themselves out
 diff --git a/include/utils/Singleton.h b/include/utils/Singleton.h
 index ffc03cb..652286a 100644
 --- a/include/utils/Singleton.h
@@ -263,7 +344,10 @@ index 8644329..2439bd9 100644
      }
  
      listen(property_set_fd, 8);
-
+diff --git a/init/screen.png b/init/screen.png
+new file mode 100644
+index 0000000..4d02b87
+Binary files /dev/null and b/init/screen.png differ
 diff --git a/init/service.cpp b/init/service.cpp
 index 76e0bc8..c88fe57 100644
 --- a/init/service.cpp
@@ -424,7 +508,8 @@ index cd97776..b8213b7 100644
  import /init.${ro.hardware}.rc
  import /init.usb.configfs.rc
  import /init.${ro.zygote}.rc
-
+-
++import /init.kernel.rc
  # Include CM's extra init file
  import /init.cm.rc
  
@@ -447,4 +532,17 @@ index cd97776..b8213b7 100644
 +#on property:persist.sys.recovery_update=true
 +#    start flash_recovery
  
-
+diff --git a/sdcard/sdcard.c b/sdcard/sdcard.c
+index 281d23e..094d59e 100644
+--- a/sdcard/sdcard.c
++++ b/sdcard/sdcard.c
+@@ -1964,8 +1964,7 @@ static int sdcardfs_setup(const char *source_path, const char *dest_path, uid_t
+     char opts[256];
+ 
+     snprintf(opts, sizeof(opts),
+-            "fsuid=%d,fsgid=%d,%smask=%d,userid=%d,gid=%d",
+-            fsuid, fsgid, multi_user?"multiuser,":"", mask, userid, gid);
++            "uid=1023,gid=1023,wgid=1023,derive=unified");
+ 
+     if (mount(source_path, dest_path, "sdcardfs",
+                         MS_NOSUID | MS_NODEV | MS_NOEXEC | MS_NOATIME, opts) != 0) {
