@@ -4,5 +4,4 @@ rild.libargs=-d /dev/ttyS0
 # test media
 media.stagefright.legacyencoder=true
 media.stagefright.less-secure=true
-media.stagefright.codecremote=false
-media.stagefright.extractremote=false
+

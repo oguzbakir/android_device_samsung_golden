@@ -29,9 +29,9 @@ $(call inherit-product, frameworks/native/build/phone-xhdpi-1024-dalvik-heap.mk)
 $(call inherit-product-if-exists, vendor/samsung/golden/golden-vendor.mk)
 
 #Releasetools
-PRODUCT_COPY_FILES += \
-	$(LOCAL_PATH)/blobinstaller.sh:blobinstaller.sh \
-	$(LOCAL_PATH)/restorecon.sh:restorecon.sh
+#PRODUCT_COPY_FILES += \
+#	$(LOCAL_PATH)/blobinstaller.sh:blobinstaller.sh \
+#	$(LOCAL_PATH)/restorecon.sh:restorecon.sh
 
 # Ramdisk
 PRODUCT_COPY_FILES += \
