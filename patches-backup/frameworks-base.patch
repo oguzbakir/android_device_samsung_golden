@@ -1,0 +1,136 @@
+diff --git a/core/java/android/hardware/Camera.java b/core/java/android/hardware/Camera.java
+index 3b0d494..4434d29 100644
+--- a/core/java/android/hardware/Camera.java
++++ b/core/java/android/hardware/Camera.java
+@@ -2918,7 +2918,7 @@ public class Camera {
+          * @return the int value of the parameter
+          */
+         public int getInt(String key) {
+-            return Integer.parseInt(mMap.get(key));
++            return Integer.getInteger(mMap.get(key),0);
+         }
+ 
+         /**
+diff --git a/libs/hwui/LayerRenderer.cpp b/libs/hwui/LayerRenderer.cpp
+index 137316f..5bd949e 100644
+--- a/libs/hwui/LayerRenderer.cpp
++++ b/libs/hwui/LayerRenderer.cpp
+@@ -194,7 +194,13 @@ Layer* LayerRenderer::createRenderLayer(RenderState& renderState, uint32_t width
+         ALOGW("Could not obtain an FBO");
+         return nullptr;
+     }
+-
++#ifdef STE_HARDWARE
++    if (width == 0 && height == 0) {
++        ALOGW("Trying to obtain a zero-size layer, setting fall-back size 512x768");
++        width = 512;
++        height = 768;
++    }
++#endif
+     caches.textureState().activateTexture(0);
+     Layer* layer = caches.layerCache.get(renderState, width, height);
+     if (!layer) {
+@@ -327,7 +333,7 @@ void LayerRenderer::destroyLayer(Layer* layer) {
+ }
+ 
+ void LayerRenderer::flushLayer(RenderState& renderState, Layer* layer) {
+-#ifdef GL_EXT_discard_framebuffer
++#if 0
+     if (!layer) return;
+ 
+     GLuint fbo = layer->getFbo();
+diff --git a/media/java/android/media/MediaCodec.java b/media/java/android/media/MediaCodec.java
+index 264944f..6d71b8b 100644
+--- a/media/java/android/media/MediaCodec.java
++++ b/media/java/android/media/MediaCodec.java
+@@ -27,7 +27,9 @@ import android.os.Bundle;
+ import android.os.Handler;
+ import android.os.Looper;
+ import android.os.Message;
++import android.os.SystemProperties;
+ import android.view.Surface;
++import android.util.Log;
+ 
+ import java.io.IOException;
+ import java.lang.annotation.Retention;
+@@ -1758,6 +1760,9 @@ final public class MediaCodec {
+                 name, false /* nameIsType */, false /* unused */);
+     }
+ 
++    private static boolean mUseGoogleH264Encoder = false;
++    private static boolean mUseFFmpegH264Decoder = false;
++
+     private MediaCodec(
+             @NonNull String name, boolean nameIsType, boolean encoder) {
+         Looper looper;
+@@ -1773,6 +1778,28 @@ final public class MediaCodec {
+ 
+         mBufferLock = new Object();
+ 
++        /* Meticulus:
++         * STE OMX encoder and decoders don't seem to work when
++         * directly accessed via this class, so  use software
++         * decoder/encoder for video/avc. Note: had to add OMX.google.h264.encoder
++         * to media_codecs.xml. The configuration below works with Instagram (10/5/2014)
++         */
++
++        mUseGoogleH264Encoder = SystemProperties.getBoolean("ste.use_google_h264_encoder", false);
++        mUseFFmpegH264Decoder = SystemProperties.getBoolean("ste.use_ffmpeg_h264_decoder", false);
++
++        if (name.equals("video/avc") && encoder && mUseGoogleH264Encoder) {
++                nameIsType = false;
++                name = "OMX.google.h264.encoder";
++                Log.i("MediaCodec"," force use " + name + " isEncoder=" + String.valueOf(encoder));
++        }
++
++        if (name.equals("video/avc") && !encoder && mUseFFmpegH264Decoder) {
++                nameIsType = false;
++                name = "OMX.ffmpeg.h264.decoder";
++                Log.i("MediaCodec"," force use " + name + " isEncoder=" + String.valueOf(encoder));
++        }
++
+         native_setup(name, nameIsType, encoder);
+     }
+ 
+diff --git a/services/core/java/com/android/server/location/GnssLocationProvider.java b/services/core/java/com/android/server/location/GnssLocationProvider.java
+index 1b08008..13ab0d5 100644
+--- a/services/core/java/com/android/server/location/GnssLocationProvider.java
++++ b/services/core/java/com/android/server/location/GnssLocationProvider.java
+@@ -1085,11 +1085,11 @@ public class GnssLocationProvider implements LocationProviderInterface {
+                 Log.e(TAG, "unable to parse SUPL_PORT: " + portString);
+             }
+         }
+-        if (mSuplServerHost != null
++       /* if (mSuplServerHost != null
+                 && mSuplServerPort > TCP_MIN_PORT
+                 && mSuplServerPort <= TCP_MAX_PORT) {
+             native_set_agps_server(AGPS_TYPE_SUPL, mSuplServerHost, mSuplServerPort);
+-        }
++        }*/
+     }
+ 
+     /**
+diff --git a/services/core/jni/com_android_server_location_GnssLocationProvider.cpp b/services/core/jni/com_android_server_location_GnssLocationProvider.cpp
+index c6cd714..8ab3a5c 100644
+--- a/services/core/jni/com_android_server_location_GnssLocationProvider.cpp
++++ b/services/core/jni/com_android_server_location_GnssLocationProvider.cpp
+@@ -876,15 +876,15 @@ static void android_location_GnssLocationProvider_agps_data_conn_open(
+     }
+ 
+     const char *apnStr = env->GetStringUTFChars(apn, NULL);
+-
++/*
+     size_t interface_size = sAGpsInterface->size;
+     if (interface_size == sizeof(AGpsInterface)) {
+         sAGpsInterface->data_conn_open_with_apn_ip_type(apnStr, apnIpType);
+-    } else if (interface_size == sizeof(AGpsInterface_v1)) {
++    } else if (interface_size == sizeof(AGpsInterface_v1)) {*/
+         sAGpsInterface->data_conn_open(apnStr);
+-    } else {
++    /*} else {
+         ALOGE("Invalid size of AGpsInterface found: %zd.", interface_size);
+-    }
++    }*/
+ 
+     env->ReleaseStringUTFChars(apn, apnStr);
+ }
