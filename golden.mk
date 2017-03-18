@@ -40,7 +40,7 @@ PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/rootdir/fstab.samsunggolden:root/fstab.samsunggolden \
     $(LOCAL_PATH)/rootdir/init.ste.rc:root/init.ste.rc \
     $(LOCAL_PATH)/rootdir/init.samsunggolden.usb.rc:root/init.samsunggolden.usb.rc \
-    $(LOCAL_PATH)/rootdir/lpm.rc:root/lpm.rc
+#    $(LOCAL_PATH)/rootdir/lpm.rc:root/lpm.rc
 
 # Recovery ramdisk, libraries and modules.
 PRODUCT_COPY_FILES += \
@@ -171,6 +171,7 @@ PRODUCT_COPY_FILES += \
 
 PRODUCT_PACKAGES += \
     audio.a2dp.default \
+    audio.r_submix.default \
     audio.usb.default \
     libasound
 
@@ -196,16 +197,16 @@ PRODUCT_PROPERTY_OVERRIDES += \
 # Charger
 # Charger Prebuilt (temporary solution for lollipop)
 # Use prebuilt charger and images from KitKat
-PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/prebuilt/charger/charger:root/sbin/charger \
-    $(LOCAL_PATH)/prebuilt/charger/images/battery_0.png:root/res/images/charger/battery_0.png \
-    $(LOCAL_PATH)/prebuilt/charger/images/battery_1.png:root/res/images/charger/battery_1.png \
-    $(LOCAL_PATH)/prebuilt/charger/images/battery_2.png:root/res/images/charger/battery_2.png \
-    $(LOCAL_PATH)/prebuilt/charger/images/battery_3.png:root/res/images/charger/battery_3.png \
-    $(LOCAL_PATH)/prebuilt/charger/images/battery_4.png:root/res/images/charger/battery_4.png \
-    $(LOCAL_PATH)/prebuilt/charger/images/battery_5.png:root/res/images/charger/battery_5.png \
-    $(LOCAL_PATH)/prebuilt/charger/images/battery_charge.png:root/res/images/charger/battery_charge.png \
-    $(LOCAL_PATH)/prebuilt/charger/images/battery_fail.png:root/res/images/charger/battery_fail.png \
+#PRODUCT_COPY_FILES += \
+#    $(LOCAL_PATH)/prebuilt/charger/charger:root/sbin/charger \
+#    $(LOCAL_PATH)/prebuilt/charger/images/battery_0.png:root/res/images/charger/battery_0.png \
+#    $(LOCAL_PATH)/prebuilt/charger/images/battery_1.png:root/res/images/charger/battery_1.png \
+#    $(LOCAL_PATH)/prebuilt/charger/images/battery_2.png:root/res/images/charger/battery_2.png \
+#    $(LOCAL_PATH)/prebuilt/charger/images/battery_3.png:root/res/images/charger/battery_3.png \
+#    $(LOCAL_PATH)/prebuilt/charger/images/battery_4.png:root/res/images/charger/battery_4.png \
+#    $(LOCAL_PATH)/prebuilt/charger/images/battery_5.png:root/res/images/charger/battery_5.png \
+#    $(LOCAL_PATH)/prebuilt/charger/images/battery_charge.png:root/res/images/charger/battery_charge.png \
+#    $(LOCAL_PATH)/prebuilt/charger/images/battery_fail.png:root/res/images/charger/battery_fail.png \
 
 # Permissions
 PRODUCT_COPY_FILES += \
@@ -251,31 +252,4 @@ PRODUCT_AAPT_PREF_CONFIG := hdpi
 
 # We have enough storage space to hold precise GC data
 PRODUCT_TAGS += dalvik.gc.type-precise
-
-# init.d scripts for performance
-PRODUCT_COPY_FILES += \
-        device/samsung/golden/initd/init.d.cfg:system/etc/init.d.cfg \
-        device/samsung/golden/initd/00check:system/etc/init.d/00check \
-        device/samsung/golden/initd/01zipalign:system/etc/init.d/01zipalign \
-        device/samsung/golden/initd/02sysctl:system/etc/init.d/02sysctl \
-        device/samsung/golden/initd/03firstboot:system/etc/init.d/03firstboot \
-        device/samsung/golden/initd/05freemem:system/etc/init.d/05freemem \
-        device/samsung/golden/initd/06removecache:system/etc/init.d/06removecache \
-        device/samsung/golden/initd/07fixperms:system/etc/init.d/07fixperms \
-        device/samsung/golden/initd/09cron:system/etc/init.d/09cron \
-        device/samsung/golden/initd/10sdboost:system/etc/init.d/10sdboost \
-        device/samsung/golden/initd/11battery:system/etc/init.d/11battery \
-        device/samsung/golden/initd/12touch:system/etc/init.d/12touch \
-        device/samsung/golden/initd/13minfree:system/etc/init.d/12minfree \
-        device/samsung/golden/initd/14gpurender:system/etc/init.d/14gpurender \
-        device/samsung/golden/initd/15sleepers:system/etc/init.d/15sleepers \
-        device/samsung/golden/initd/16journalism:system/etc/init.d/16journalism \
-        device/samsung/golden/initd/17sqlite3:system/etc/init.d/17sqlite3 \
-        device/samsung/golden/initd/18wifisleep:system/etc/init.d/18wifisleep \
-        device/samsung/golden/initd/19iostats:system/etc/init.d/19iostats \
-        device/samsung/golden/initd/20setrenice:system/etc/init.d/20setrenice \
-        device/samsung/golden/initd/21tweaks:system/etc/init.d/21tweaks \
-        device/samsung/golden/initd/24speedy_modified:system/etc/init.d/24speedy_modified \
-        device/samsung/golden/initd/25loopy_smoothness_tweak:system/etc/init.d/25loopy_smoothness_tweak \
-        device/samsung/golden/initd/98tweaks:system/etc/init.d/98tweaks
 

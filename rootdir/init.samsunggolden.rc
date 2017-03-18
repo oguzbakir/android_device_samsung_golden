@@ -445,6 +445,10 @@ on boot
     chown system radio /sys/class/lcd/panel/lcd_type
     chown system media_rw /sys/class/lcd/panel/power_reduce
 
+    # MTP Device permission.
+    chmod 0660 /dev/mtp_usb
+    chown system mtp /dev/mtp_usb
+
     # camera factory
     chown system system /sys/class/sec/sec_cam/camtype
     chown system system /sys/class/camera/rear/rear_flash
@@ -469,7 +473,7 @@ on boot
     class_start modem
     class_start default
 
-service charger /sbin/charger
+service charger /sbin/healthd -c
     class charger
     critical
     seclabel u:r:healthd:s0
@@ -572,5 +576,7 @@ service iprenew_bt-pan /system/bin/dhcpcd -n
 	class main
 	disabled
 	oneshot
+
+# Hack to speed up shutdown (thx PolishVodka)
 on property:sys.shutdown.requested=*
     stop ril-daemon

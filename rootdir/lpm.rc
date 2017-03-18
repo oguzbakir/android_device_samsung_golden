@@ -17,4 +17,7 @@ on boot
 service ueventd /sbin/ueventd
     critical
 
-service battery_charger /charger
+service charger /sbin/healthd -c
+    class charger
+    critical
+    seclabel u:r:healthd:s0
