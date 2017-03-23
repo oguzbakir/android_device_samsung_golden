@@ -21,9 +21,9 @@ index fb87de0..fbc4049 100644
  
 -LOCAL_CFLAGS += -Werror -Wno-error=deprecated-declarations -Wall
 +LOCAL_CFLAGS += -Wno-error=deprecated-declarations -Wall
- 
- ifneq ($(TARGET_HAS_LEGACY_CAMERA_HAL1), true)
- LOCAL_C_INCLUDES += \
+ # DOLBY_START
+ ifeq ($(strip $(DOLBY_ENABLE)),true)
+     LOCAL_CFLAGS += $(dolby_cflags)
 diff --git a/media/libstagefright/id3/Android.mk b/media/libstagefright/id3/Android.mk
 index fb87de0..0bc4049 100644
 --- a/media/libstagefright/id3/Android.mk
@@ -68,9 +68,9 @@ index fb87de0..fb14008 100644
 --- a/services/audiopolicy/Android.mk
 +++ b/services/audiopolicy/Android.mk
 @@ -50,7 +50,7 @@ LOCAL_MULTILIB := $(AUDIOSERVER_MULTILIB)
- LOCAL_MODULE:= libaudiopolicyservice
- 
- LOCAL_CFLAGS += -fvisibility=hidden
+     LOCAL_CFLAGS += $(dolby_cflags)
+ endif
+ # DOLBY_END
 -LOCAL_CFLAGS += -Wall -Werror
 +LOCAL_CFLAGS += -Wall
  

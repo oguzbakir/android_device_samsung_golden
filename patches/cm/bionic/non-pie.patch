@@ -1,0 +1,15 @@
+diff --git a/linker/linker_non_pie.cpp b/linker/linker_non_pie.cpp
+index 311f0ac..82b7b44 100644
+--- a/linker/linker_non_pie.cpp
++++ b/linker/linker_non_pie.cpp
+@@ -32,5 +32,8 @@ bool allow_non_pie(const char* executable) {
+         if (!strcmp(linker_non_pie_executables[i], executable))
+             return true;
+     }
+-    return false;
++    //return false;
++
++    // Sorry, too lazy to create a linker_non_pie.h file :)
++    return true;
+ }
+
