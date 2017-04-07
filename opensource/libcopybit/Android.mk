@@ -24,4 +24,5 @@ LOCAL_SHARED_LIBRARIES := liblog libblt_hw libhardware
 LOCAL_SRC_FILES := copybit.c
 LOCAL_MODULE := copybit.$(TARGET_BOARD_PLATFORM)
 LOCAL_MODULE_TAGS := optional
+LOCAL_CLANG := false
 include $(BUILD_SHARED_LIBRARY)

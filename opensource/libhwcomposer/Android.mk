@@ -24,4 +24,5 @@ LOCAL_SHARED_LIBRARIES := liblog libcutils libEGL libGLESv1_CM libhardware
 LOCAL_SRC_FILES := hwcomposer.c vsync_monitor.c
 LOCAL_MODULE := hwcomposer.$(TARGET_BOARD_PLATFORM)
 LOCAL_MODULE_TAGS := optional
+LOCAL_CLANG := false
 include $(BUILD_SHARED_LIBRARY)

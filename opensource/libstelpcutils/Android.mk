@@ -22,4 +22,5 @@ LOCAL_SRC_FILES := \
 	stelp_log.c \
 	stelp_time.c \
 
+LOCAL_CLANG := false
 include $(BUILD_SHARED_LIBRARY)

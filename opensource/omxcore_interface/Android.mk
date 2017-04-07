@@ -22,4 +22,5 @@ LOCAL_SHARED_LIBRARIES := liblog libdl
 LOCAL_SRC_FILES := ste_omxil_interface.cpp
 LOCAL_MODULE := libste_omxil-interface
 LOCAL_MODULE_TAGS := optional
+LOCAL_CLANG := false
 include $(BUILD_SHARED_LIBRARY)

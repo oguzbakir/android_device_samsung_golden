@@ -29,4 +29,5 @@ LOCAL_C_INCLUDES += $(LOCAL_PATH)/../b2r2lib/include/video/
 LOCAL_MODULE := gralloc.$(TARGET_BOARD_PLATFORM)
 LOCAL_MODULE_TAGS := optional
 LOCAL_CFLAGS:= -DLOG_TAG=\"gralloc\"
+LOCAL_CLANG := false
 include $(BUILD_SHARED_LIBRARY)

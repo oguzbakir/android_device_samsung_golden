@@ -41,4 +41,5 @@ LOCAL_SRC_FILES := \
 ##LOCAL_SRC_FILES := $(shell cd $(LOCAL_PATH) && find cm -name "*.cpp")
 LOCAL_MODULE := libnmf
 LOCAL_MODULE_TAGS := optional
+LOCAL_CLANG := false
 include $(BUILD_SHARED_LIBRARY)
