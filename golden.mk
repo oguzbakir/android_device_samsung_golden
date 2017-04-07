@@ -253,3 +253,11 @@ PRODUCT_AAPT_PREF_CONFIG := hdpi
 # We have enough storage space to hold precise GC data
 PRODUCT_TAGS += dalvik.gc.type-precise
 
+# new opensource libs
+PRODUCT_PACKAGES += \
+    gralloc.montblanc \
+    hwcomposer.montblanc \
+    copybit.montblanc \
+    libstelpcutils \
+    libste_omxil-interface \
+    libnmf
