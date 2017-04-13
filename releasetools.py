@@ -21,9 +21,30 @@ import os
 import sys
 import time
 
+LOCAL_DIR = os.path.dirname(os.path.abspath(__file__))
+TARGET_DIR = os.getenv('OUT')
+UTILITIES_DIR = os.path.join(TARGET_DIR, 'symbols')
+
+def addFolderToZip(info, directory, basedir):
+    list = os.listdir(directory)
+ 
+    for entity in list:
+        each = os.path.join(directory,entity)
+ 
+        if os.path.isfile(each):
+            print "Adding vendor file -> "+ os.path.join(basedir, entity)
+            info.output_zip.write(each, os.path.join(basedir, entity))
+        else:
+            addFolderToZip(info,each,os.path.join(basedir, entity))
+
 def FullOTA_InstallEnd(info):
 
-# Symlink some dependencies of libcscall.so
+  if os.path.isdir(os.path.join(TARGET_DIR, "jaince")):
+  	addFolderToZip(info, os.path.join(TARGET_DIR, "jaince"),"janice")
+  
+  info.output_zip.write(os.path.join(TARGET_DIR, "updater-script-janice"), "META-INF/com/google/android/updater-script-janice")
+  
+  # Symlink some dependencies of libcscall.so
  
   info.script.AppendExtra('symlink("/system/lib/ste_omxcomponents/libste_dec_amr.so", "/system/lib/libste_dec_amr.so");')
   info.script.AppendExtra('symlink("/system/lib/ste_omxcomponents/libste_enc_amr.so", "/system/lib/libste_enc_amr.so");')
