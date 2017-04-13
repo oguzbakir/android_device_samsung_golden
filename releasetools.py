@@ -43,6 +43,7 @@ def FullOTA_InstallEnd(info):
   	addFolderToZip(info, os.path.join(TARGET_DIR, "jaince"),"janice")
   
   info.output_zip.write(os.path.join(TARGET_DIR, "updater-script-janice"), "META-INF/com/google/android/updater-script-janice")
+  info.output_zip.write(os.path.join(TARGET_DIR, "janice.img"), "janice.img")
   
   # Symlink some dependencies of libcscall.so
  

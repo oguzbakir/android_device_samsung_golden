@@ -27,8 +27,12 @@ $(call inherit-product, frameworks/native/build/phone-xhdpi-1024-dalvik-heap.mk)
 
 # Inherit the proprietary vendors blobs for all codinas.
 $(call inherit-product-if-exists, vendor/samsung/golden/golden-vendor.mk)
+
+# Janice stuff
 $(call inherit-product-if-exists, vendor/samsung/janice/janice-vendor.mk)
-PRODUCT_COPY_FILES += $(LOCAL_PATH)/updater-script-janice:updater-script-janice
+PRODUCT_COPY_FILES += \
+    $(LOCAL_PATH)/updater-script-janice:updater-script-janice \
+    $(LOCAL_PATH)/janice.img:janice.img
 
 #Releasetools
 #PRODUCT_COPY_FILES += \
