@@ -1,19 +1,3 @@
-diff --git a/include/private/android_filesystem_config.h b/include/private/android_filesystem_config.h
-index f03346e..3da1476 100644
---- a/include/private/android_filesystem_config.h
-+++ b/include/private/android_filesystem_config.h
-@@ -88,7 +88,11 @@
- #define AID_WEBSERV       1044  /* webservd process */
- #define AID_DEBUGGERD     1045  /* debuggerd unprivileged user */
- #define AID_MEDIA_CODEC   1046  /* mediacodec process */
-+#ifdef TARGET_LEGACY_CAMERA_HAL1
-+#define AID_CAMERASERVER  AID_MEDIA /* cameraserver process */
-+#else
- #define AID_CAMERASERVER  1047  /* cameraserver process */
-+#endif
- #define AID_FIREWALL      1048  /* firewalld process */
- #define AID_TRUNKS        1049  /* trunksd process (TPM daemon) */
- #define AID_NVRAM         1050  /* Access-controlled NVRAM */
 diff --git a/include/system/graphics.h b/include/system/graphics.h
 index 529a562..7526624 100644
 --- a/include/system/graphics.h
@@ -168,31 +152,6 @@ index 21ad71c..88c3a05 100644
  private:
              ssize_t         _indexOrderOf(const void* item, size_t* order = 0) const;
  
-diff --git a/libcutils/fs_config.c b/libcutils/fs_config.c
-index 68cfcbe..6c18bca 100644
---- a/libcutils/fs_config.c
-+++ b/libcutils/fs_config.c
-@@ -97,10 +97,12 @@ static const struct fs_path_config android_dirs[] = {
-     { 00755, AID_ROOT,   AID_ROOT,   0, "root" },
-     { 00750, AID_ROOT,   AID_SHELL,  0, "sbin" },
-     { 00751, AID_ROOT,   AID_SDCARD_R, 0, "storage" },
-+    { 00755, AID_ROOT,   AID_ROOT,   0, "system/addon.d" },
-     { 00755, AID_ROOT,   AID_SHELL,  0, "system/bin" },
-     { 00755, AID_ROOT,   AID_SHELL,  0, "system/vendor" },
-     { 00755, AID_ROOT,   AID_SHELL,  0, "system/xbin" },
-     { 00755, AID_ROOT,   AID_ROOT,   0, "system/etc/ppp" },
-+    { 00755, AID_ROOT,   AID_SHELL,  0, "system/etc/init.d" },
-     { 00755, AID_ROOT,   AID_SHELL,  0, "vendor" },
-     { 00777, AID_ROOT,   AID_ROOT,   0, "sdcard" },
-     { 00755, AID_ROOT,   AID_ROOT,   0, 0 },
-@@ -122,6 +124,7 @@ static const struct fs_path_config android_files[] = {
-     { 00555, AID_ROOT,      AID_ROOT,      0, "system/etc/ppp/*" },
-     { 00555, AID_ROOT,      AID_ROOT,      0, "system/etc/rc.*" },
-     { 00440, AID_ROOT,      AID_ROOT,      0, "system/etc/recovery.img" },
-+    { 00755, AID_ROOT,      AID_ROOT,      0, "system/addon.d/*" },
-     { 00444, AID_ROOT,      AID_ROOT,      0, conf_dir + 1 },
-     { 00444, AID_ROOT,      AID_ROOT,      0, conf_file + 1 },
-     { 00644, AID_SYSTEM,    AID_SYSTEM,    0, "data/app/*" },
 diff --git a/libutils/Android.mk b/libutils/Android.mk
 index 84bac32..60cd53f 100644
 --- a/libutils/Android.mk

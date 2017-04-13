@@ -39,7 +39,7 @@ PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/rootdir/ueventd.samsunggolden.rc:root/ueventd.samsunggolden.rc \
     $(LOCAL_PATH)/rootdir/fstab.samsunggolden:root/fstab.samsunggolden \
     $(LOCAL_PATH)/rootdir/init.ste.rc:root/init.ste.rc \
-    $(LOCAL_PATH)/rootdir/init.samsunggolden.usb.rc:root/init.samsunggolden.usb.rc \
+    $(LOCAL_PATH)/rootdir/init.samsunggolden.usb.rc:root/init.samsunggolden.usb.rc
 #    $(LOCAL_PATH)/rootdir/lpm.rc:root/lpm.rc
 
 # Recovery ramdisk, libraries and modules.
@@ -63,12 +63,7 @@ PRODUCT_COPY_FILES += \
 PRODUCT_PROPERTY_OVERRIDES += \
     debug.sf.hw=1 \
     ro.zygote.disable_gl_preload=true \
-    ro.bq.gpu_to_cpu_unsupported=1
-
-PRODUCT_PACKAGES += \
-    libblt_hw
-
-PRODUCT_PROPERTY_OVERRIDES += \
+    ro.bq.gpu_to_cpu_unsupported=1 \
     ro.opengles.version=131072 \
     debug.hwui.render_dirty_regions=false \
     persist.sys.use_dithering=2 \
@@ -86,10 +81,6 @@ PRODUCT_COPY_FILES += \
     frameworks/av/media/libstagefright/data/media_codecs_google_audio.xml:system/etc/media_codecs_google_audio.xml \
     frameworks/av/media/libstagefright/data/media_codecs_google_telephony.xml:system/etc/media_codecs_google_telephony.xml \
     frameworks/av/media/libstagefright/data/media_codecs_google_video.xml:system/etc/media_codecs_google_video.xml
-
-
-PRODUCT_PACKAGES += \
-    libomxil-bellagio
 
 PRODUCT_PROPERTY_OVERRIDES += \
     ste.nmf.autoidle=1 \
@@ -172,16 +163,7 @@ PRODUCT_COPY_FILES += \
 PRODUCT_PACKAGES += \
     audio.a2dp.default \
     audio.r_submix.default \
-    audio.usb.default \
-    libasound
-
-# Sensors
-PRODUCT_PACKAGES += \
-    lights.montblanc
-
-# Power
-PRODUCT_PACKAGES += \
-    power.montblanc
+    audio.usb.default 
 
 # Enable repeatable keys in cwm
 PRODUCT_PROPERTY_OVERRIDES += \
@@ -253,15 +235,18 @@ PRODUCT_AAPT_PREF_CONFIG := hdpi
 # We have enough storage space to hold precise GC data
 PRODUCT_TAGS += dalvik.gc.type-precise
 
-
 # Hardware repo
 $(call inherit-product, hardware/u8500/Android.mk)
 
-# new opensource libs
 PRODUCT_PACKAGES += \
     gralloc.montblanc \
     hwcomposer.montblanc \
     copybit.montblanc \
     libstelpcutils \
     libste_omxil-interface \
-    libnmf
+    libnmf \
+    libasound \
+    lights.montblanc \
+    power.montblanc \
+    libblt_hw \
+    libomxil-bellagio
