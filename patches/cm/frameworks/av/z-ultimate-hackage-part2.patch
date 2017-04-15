@@ -1,0 +1,34 @@
+diff --git a/media/libstagefright/ACodec.cpp b/media/libstagefright/ACodec.cpp
+index 92e2847..d1e05ca 100644
+--- a/media/libstagefright/ACodec.cpp
++++ b/media/libstagefright/ACodec.cpp
+@@ -3425,7 +3438,7 @@ status_t ACodec::setupVideoDecoder(
+         InitOMXParams(&params);
+         params.nPortIndex = kPortIndexInput;
+         // Check if VP9 decoder advertises supported profiles.
+-        params.nProfileIndex = 0;
++        params.nProfileIndex = 1; //params.nProfileIndex = 0;
+         status_t err = mOMX->getParameter(
+                 mNode,
+                 OMX_IndexParamVideoProfileLevelQuerySupported,
+@@ -4677,7 +4690,7 @@ status_t ACodec::verifySupportForProfileAndLevel(
+     InitOMXParams(&params);
+     params.nPortIndex = kPortIndexOutput;
+ 
+-    for (OMX_U32 index = 0; index <= kMaxIndicesToCheck; ++index) {
++    for (OMX_U32 index = 1; index <= kMaxIndicesToCheck; ++index) { //hax
+         params.nProfileIndex = index;
+         status_t err = mOMX->getParameter(
+                 mNode,
+@@ -4692,9 +4705,9 @@ status_t ACodec::verifySupportForProfileAndLevel(
+         int32_t supportedProfile = static_cast<int32_t>(params.eProfile);
+         int32_t supportedLevel = static_cast<int32_t>(params.eLevel);
+ 
+-        if (profile == supportedProfile && level <= supportedLevel) {
++        //if (profile == supportedProfile && level <= supportedLevel) {
+             return OK;
+-        }
++        //}
+ 
+         if (index == kMaxIndicesToCheck) {
+             ALOGW("[%s] stopping checking profiles after %u: %x/%x",

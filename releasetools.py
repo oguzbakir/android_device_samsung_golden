@@ -39,8 +39,7 @@ def addFolderToZip(info, directory, basedir):
 
 def FullOTA_InstallEnd(info):
 
-  if os.path.isdir(os.path.join(TARGET_DIR, "jaince")):
-  	addFolderToZip(info, os.path.join(TARGET_DIR, "jaince"),"janice")
+  addFolderToZip(info, os.path.join(TARGET_DIR, "janice"),"janice")
   
   info.output_zip.write(os.path.join(TARGET_DIR, "updater-script-janice"), "META-INF/com/google/android/updater-script-janice")
   info.output_zip.write(os.path.join(TARGET_DIR, "janice.img"), "janice.img")
