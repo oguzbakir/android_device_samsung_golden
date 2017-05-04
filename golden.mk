@@ -256,4 +256,5 @@ PRODUCT_PACKAGES += \
     lights.montblanc \
     power.montblanc \
     libblt_hw \
-    libomxil-bellagio
+    libomxil-bellagio \
+    camera.montblanc
