@@ -34,4 +34,5 @@ done
 }
 
 clear_set cm
+clear_set janice
 

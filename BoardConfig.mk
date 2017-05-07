@@ -111,8 +111,8 @@ BOARD_CUSTOM_BT_CONFIG := device/samsung/golden/bluetooth/vnd_golden.txt
 # RIL
 BOARD_RIL_CLASS := ../../../device/samsung/golden/ril/
 BOARD_GLOBAL_CFLAGS += -DSAMSUNG_PROPRIETARY_RIL_WORKAROUND
-BOARD_PROVIDES_LIBRIL := true
-BOARD_PROVIDES_RILD := true
+#BOARD_PROVIDES_LIBRIL := true
+#BOARD_PROVIDES_RILD := true
 
 # Browser
 ENABLE_WEBGL := true

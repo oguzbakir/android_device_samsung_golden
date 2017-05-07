@@ -1,0 +1,32 @@
+From 99704450230c2496676d44c3b63ab7ec8e42291c Mon Sep 17 00:00:00 2001
+From: Harvey Chua <harvs89.2@gmail.com>
+Date: Sat, 6 May 2017 21:22:28 +0800
+Subject: [PATCH] Fix offline charging in kernel side Convert the bootloader's 
+ "lpm_boot" kernel command line into Android's standard "androidboot.mode"
+
+based on: https://forum.xda-developers.com/galaxy-s3/development-i9305/fix-offline-charging-bug-fix-bootloader-t3033149
+(adapted for u8500 kernel)
+---
+ arch/arm/kernel/setup.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/arch/arm/kernel/setup.c b/arch/arm/kernel/setup.c
+index 4e89aea..f9cd472 100644
+--- a/arch/arm/kernel/setup.c
++++ b/arch/arm/kernel/setup.c
+@@ -678,6 +678,12 @@ static int __init parse_tag_cmdline(const struct tag *tag)
+ 		COMMAND_LINE_SIZE);
+ #endif
+ 
++	// fix offline charging
++	if (strstr(default_command_line, "lpm_boot=1") != 0) {
++            strlcat(default_command_line, " ", COMMAND_LINE_SIZE);
++	    strlcat(default_command_line, "androidboot.mode=charger", COMMAND_LINE_SIZE);
++	}
++
+ 	if (unlikely(!bootmode && (strstr(default_command_line, "bootmode=2") != NULL)) == true) {
+ 		bootmode = 2;
+ 		if (unlikely(setup_debug > 0))
+-- 
+1.9.1
+

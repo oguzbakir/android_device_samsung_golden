@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012, The CyanogenMod Project
+ * Copyright (C) 2012-2013, The CyanogenMod Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@
 
 
 #define LOG_NDEBUG 0
-//#define LOG_PARAMETERS
+#define LOG_PARAMETERS
 
 #define LOG_TAG "CameraWrapper"
 #include <cutils/log.h>
@@ -34,6 +34,10 @@
 #include <hardware/camera.h>
 #include <camera/Camera.h>
 #include <camera/CameraParameters.h>
+#include <cutils/properties.h>
+
+// fix
+const static char * iso_values[] = {"auto,ISO100,ISO200,ISO400,ISO800","auto"};
 
 static android::Mutex gCameraWrapperLock;
 static camera_module_t *gVendorModule = 0;
@@ -55,7 +59,7 @@ camera_module_t HAL_MODULE_INFO_SYM = {
          version_minor: 0,
          id: CAMERA_HARDWARE_MODULE_ID,
          name: "U8500 Camera Wrapper",
-         author: "Teamhacksung <info@teamhacksung.org>",
+         author: "The CyanogenMod Project",
          methods: &camera_module_methods,
          dso: NULL, /* remove compilation warnings */
          reserved: {0}, /* remove compilation warnings */
@@ -91,7 +95,10 @@ static int check_vendor_module()
     return rv;
 }
 
-const static char * iso_values[] = {"auto,ISO100,ISO200,ISO400,ISO800","auto"};
+void camera_fixup_capability(android::CameraParameters *params)
+{
+    ALOGV("%s", __FUNCTION__);
+}
 
 static char * camera_fixup_getparams(int id, const char * settings)
 {
@@ -318,7 +325,13 @@ int camera_take_picture(struct camera_device * device)
     if(!device)
         return -EINVAL;
 
-    return VENDOR_CALL(device, take_picture);
+    // We safely avoid returning the exact result of VENDOR_CALL here. If ZSL
+    // really bumps fast, take_picture will be called while a picture is already being
+    // taken, leading to "picture already running" error, crashing Gallery app. Afaik,
+    // there is no issue doing 0 (error appears in logcat anyway if needed).
+    VENDOR_CALL(device, take_picture);
+
+    return 0;
 }
 
 int camera_cancel_picture(struct camera_device * device)
@@ -329,7 +342,7 @@ int camera_cancel_picture(struct camera_device * device)
     if(!device)
         return -EINVAL;
 
-    return VENDOR_CALL(device, take_picture);
+    return VENDOR_CALL(device, cancel_picture);
 }
 
 int camera_set_parameters(struct camera_device * device, const char *params)
@@ -342,12 +355,11 @@ int camera_set_parameters(struct camera_device * device, const char *params)
 
     char *tmp = NULL;
     tmp = camera_fixup_setparams(CAMERA_ID(device), params);
-
 #ifdef LOG_PARAMETERS
-    __android_log_write(ANDROID_LOG_VERBOSE, LOG_TAG, tmp);
+    __android_log_write(ANDROID_LOG_VERBOSE, LOG_TAG, tmp+350);
 #endif
 
-    int ret = VENDOR_CALL(device, set_parameters, tmp);
+    int ret = VENDOR_CALL(device, set_parameters, params);
     return ret;
 }
 
@@ -364,7 +376,6 @@ char* camera_get_parameters(struct camera_device * device)
 #ifdef LOG_PARAMETERS
     __android_log_write(ANDROID_LOG_VERBOSE, LOG_TAG, params);
 #endif
-
     char * tmp = camera_fixup_getparams(CAMERA_ID(device), params);
     VENDOR_CALL(device, put_parameters, params);
     params = tmp;
@@ -444,6 +455,8 @@ done:
 #endif
     return ret;
 }
+
+
 
 /*******************************************************************
  * implementation of camera_module functions
