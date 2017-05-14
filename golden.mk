@@ -169,6 +169,9 @@ PRODUCT_PROPERTY_OVERRIDES += \
     ste.cam.front.orientation=270 \
     ste.cam.back.orientation=90 \
     ste.cam.ext.cfg.path.secondary=/system/usr/share/camera/config_file/aptina_mt9v113.dat
+# enable Snap
+PRODUCT_PACKAGES += \
+    Snap
 
 # Wifi
 PRODUCT_COPY_FILES += \
