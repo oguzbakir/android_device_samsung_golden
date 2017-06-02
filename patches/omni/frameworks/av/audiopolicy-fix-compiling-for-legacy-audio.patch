@@ -1,0 +1,41 @@
+From c778d3f6aa027f6435045bfebcb77866c072278a Mon Sep 17 00:00:00 2001
+From: Xuefer <xuefer@gmail.com>
+Date: Sun, 25 Sep 2016 18:30:51 +0800
+Subject: [PATCH] audiopolicy: fix compiling for legacy audio
+
+Change-Id: I3597e4c934addb920ddd356f4893ea77638c8cca
+Signed-off-by: Xuefer <xuefer@gmail.com>
+---
+ services/audiopolicy/AudioPolicyInterface.h                  | 2 ++
+ services/audiopolicy/service/AudioPolicyClientImplLegacy.cpp | 2 +-
+ 2 files changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/services/audiopolicy/AudioPolicyInterface.h b/services/audiopolicy/AudioPolicyInterface.h
+index dd6f438d1..2d7cbdd06 100644
+--- a/services/audiopolicy/AudioPolicyInterface.h
++++ b/services/audiopolicy/AudioPolicyInterface.h
+@@ -345,8 +345,10 @@ class AudioPolicyClientInterface
+ 
+ };
+ 
++#ifndef USE_LEGACY_AUDIO_POLICY
+ extern "C" AudioPolicyInterface* createAudioPolicyManager(AudioPolicyClientInterface *clientInterface);
+ extern "C" void destroyAudioPolicyManager(AudioPolicyInterface *interface);
++#endif
+ 
+ 
+ }; // namespace android
+diff --git a/services/audiopolicy/service/AudioPolicyClientImplLegacy.cpp b/services/audiopolicy/service/AudioPolicyClientImplLegacy.cpp
+index 151d066f2..dabffe64c 100644
+--- a/services/audiopolicy/service/AudioPolicyClientImplLegacy.cpp
++++ b/services/audiopolicy/service/AudioPolicyClientImplLegacy.cpp
+@@ -56,7 +56,7 @@ audio_module_handle_t aps_load_hw_module(void *service __unused,
+     sp<IAudioFlinger> af = AudioSystem::get_audio_flinger();
+     if (af == 0) {
+         ALOGW("%s: could not get AudioFlinger", __func__);
+-        return 0;
++        return AUDIO_MODULE_HANDLE_NONE;
+     }
+ 
+     return af->loadHwModule(name);
+

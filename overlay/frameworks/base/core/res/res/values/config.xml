@@ -88,7 +88,7 @@
     <integer name="config_deviceHardwareKeys">7</integer> -->
 
     <!-- Boolean to enable stk functionality on Samsung phones -->
-    <bool name="config_samsung_stk">true</bool>
+    <!-- <bool name="config_samsung_stk">true</bool> -->
 
     <!-- Device supports LED flashlight -->
     <!--<bool name="config_enableTorch">true</bool>-->

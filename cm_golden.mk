@@ -18,6 +18,10 @@
 # Inherit CM common Phone stuff.
 $(call inherit-product-if-exists, vendor/cm/config/common_full_phone.mk)
 
+# For OmniROM
+$(call inherit-product-if-exists, vendor/omni/config/common.mk)
+$(call inherit-product-if-exists, vendor/omni/config/gsm.mk)
+
 # Inherit device configuration
 $(call inherit-product, device/samsung/golden/golden.mk)
 

@@ -33,6 +33,6 @@ do
 done
 }
 
-clear_set cm
+clear_set common
 clear_set janice
 

@@ -1,0 +1,30 @@
+From c85476790eb71724ae5c4d6832f8815e1f610a35 Mon Sep 17 00:00:00 2001
+From: Simon Shields <keepcalm444@gmail.com>
+Date: Sun, 28 Aug 2016 23:52:24 +1000
+Subject: [PATCH] build: add BOARD_GLOBAL_C[PP]FLAGS to
+ TARGET_GLOBAL_C[PP]FLAGS
+
+* workaround these being reset after BoardConfig.mk is run
+
+Change-Id: Ibe984d862df0e1a5910ea80a66c44d599c299f10
+---
+ core/combo/select.mk | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/core/combo/select.mk b/core/combo/select.mk
+index df12e7e38..97d62c684 100644
+--- a/core/combo/select.mk
++++ b/core/combo/select.mk
+@@ -33,9 +33,9 @@ $(combo_var_prefix)CXX := $(CXX)
+ $(combo_var_prefix)AR := $(AR)
+ $(combo_var_prefix)STRIP := $(STRIP)
+ 
+-$(combo_var_prefix)GLOBAL_CFLAGS := -fno-exceptions -Wno-multichar
+-$(combo_var_prefix)RELEASE_CFLAGS := -O2 -g -fno-strict-aliasing
+-$(combo_var_prefix)GLOBAL_CPPFLAGS :=
++$(combo_var_prefix)GLOBAL_CFLAGS := -fno-exceptions -Wno-multichar $(BOARD_GLOBAL_CFLAGS)
++$(combo_var_prefix)RELEASE_CFLAGS := -O2 -g -fno-strict-aliasing $(BOARD_RELEASE_CFLAGS)
++$(combo_var_prefix)GLOBAL_CPPFLAGS := $(BOARD_GLOBAL_CPPFLAGS)
+ $(combo_var_prefix)GLOBAL_LDFLAGS :=
+ $(combo_var_prefix)GLOBAL_ARFLAGS := crsPD
+ $(combo_var_prefix)GLOBAL_LD_DIRS :=

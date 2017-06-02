@@ -1,0 +1,108 @@
+diff --git a/media/libmediaplayerservice/StagefrightRecorder.cpp b/media/libmediaplayerservice/StagefrightRecorder.cpp
+index cac111e..163995a 100644
+--- a/media/libmediaplayerservice/StagefrightRecorder.cpp
++++ b/media/libmediaplayerservice/StagefrightRecorder.cpp
+@@ -46,8 +46,10 @@
+ #include <media/stagefright/MediaDefs.h>
+ #include <media/stagefright/MetaData.h>
+ #include <media/stagefright/MediaCodecSource.h>
++#include <media/stagefright/SurfaceMediaSource.h>
+ #include <media/MediaProfiles.h>
+ #include <camera/CameraParameters.h>
++#include <gui/Surface.h>
+ 
+ #include <utils/Errors.h>
+ #include <sys/types.h>
+diff --git a/media/libmediaplayerservice/StagefrightRecorder.cpp.rej b/media/libmediaplayerservice/StagefrightRecorder.cpp.rej
+deleted file mode 100644
+index c014603..0000000
+--- a/media/libmediaplayerservice/StagefrightRecorder.cpp.rej
++++ /dev/null
+@@ -1,17 +0,0 @@
+---- media/libmediaplayerservice/StagefrightRecorder.cpp
+-+++ media/libmediaplayerservice/StagefrightRecorder.cpp
+-@@ -46,11 +46,14 @@
+- #include <media/stagefright/MediaDefs.h>
+- #include <media/stagefright/MetaData.h>
+- #include <media/stagefright/MediaCodecSource.h>
+-+#include <media/stagefright/SurfaceMediaSource.h>
+- #include <media/stagefright/OMXClient.h>
+- #include <media/stagefright/WAVEWriter.h>
+- #include <media/stagefright/OMXCodec.h>
+- #include <media/MediaProfiles.h>
+- #include <camera/CameraParameters.h>
+-+#include <gui/Surface.h>
+-+
+- 
+- #include <utils/Errors.h>
+- #include <sys/types.h>
+diff --git a/media/libstagefright/ACodec.cpp b/media/libstagefright/ACodec.cpp
+index 61f6500..17451a0 100755
+--- a/media/libstagefright/ACodec.cpp
++++ b/media/libstagefright/ACodec.cpp
+@@ -1030,7 +1030,11 @@ status_t ACodec::setupNativeWindowSizeFormatAndUsage(
+             nativeWindow,
+             def.format.video.nFrameWidth,
+             def.format.video.nFrameHeight,
++#ifdef STE_HARDWARE
++            OMXCodec::OmxToHALFormat(def.format.video.eColorFormat),
++#else
+             def.format.video.eColorFormat,
++#endif
+             mRotationDegrees,
+             usage,
+             reconnect);
+diff --git a/media/libstagefright/ACodec.cpp.rej b/media/libstagefright/ACodec.cpp.rej
+deleted file mode 100644
+index 7608657..0000000
+--- a/media/libstagefright/ACodec.cpp.rej
++++ /dev/null
+@@ -1,14 +0,0 @@
+---- media/libstagefright/ACodec.cpp
+-+++ media/libstagefright/ACodec.cpp
+-@@ -1026,7 +1026,11 @@ status_t ACodec::setupNativeWindowSizeFormatAndUsage(
+- #ifdef USE_SAMSUNG_COLORFORMAT
+-             eNativeColorFormat,
+- #else
+-+#ifdef STE_HARDWARE
+-+            OMXCodec::OmxToHALFormat(def.format.video.eColorFormat),
+-+#else
+-             def.format.video.eColorFormat,
+-+#endif
+- #endif
+-             mRotationDegrees,
+-             usage,
+diff --git a/media/libstagefright/StagefrightMetadataRetriever.cpp b/media/libstagefright/StagefrightMetadataRetriever.cpp
+index e0f9aa3..41b8a93 100644
+--- a/media/libstagefright/StagefrightMetadataRetriever.cpp
++++ b/media/libstagefright/StagefrightMetadataRetriever.cpp
+@@ -533,7 +533,7 @@ VideoFrame *StagefrightMetadataRetriever::getFrameAtTime(
+             &matchingCodecs);
+ 
+     for (size_t i = 0; i < matchingCodecs.size(); ++i) {
+-        const AString &componentName = matchingCodecs[i];
++        const AString &componentName = matchingCodecs[i].mName.string();
+         VideoFrame *frame =
+             extractVideoFrame(componentName, trackMeta, source, timeUs, option);
+ 
+diff --git a/media/libstagefright/StagefrightMetadataRetriever.cpp.rej b/media/libstagefright/StagefrightMetadataRetriever.cpp.rej
+deleted file mode 100644
+index b06d85d..0000000
+--- a/media/libstagefright/StagefrightMetadataRetriever.cpp.rej
++++ /dev/null
+@@ -1,15 +0,0 @@
+---- media/libstagefright/StagefrightMetadataRetriever.cpp
+-+++ media/libstagefright/StagefrightMetadataRetriever.cpp
+-@@ -524,10 +524,10 @@ VideoFrame *StagefrightMetadataRetriever::getFrameAtTime(
+-             FFMPEGSoftCodec::overrideComponentName(0, trackMeta, mime, false);
+-         if (ffmpegComponentName != NULL) {
+-             ALOGV("override compoent %s to %s for video frame extraction.",
+--                    matchingCodecs[i].c_str(), ffmpegComponentName);
+-+                    matchingCodecs[i].mName.string(), ffmpegComponentName);
+-             componentName.setTo(ffmpegComponentName);
+-         } else {
+--            componentName = matchingCodecs[i];
+-+            componentName = matchingCodecs[i].mName.string();
+-         }
+- 
+-         VideoFrame *frame =
