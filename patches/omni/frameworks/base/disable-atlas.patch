@@ -1,0 +1,13 @@
+diff --git a/services/java/com/android/server/SystemServer.java b/services/java/com/android/server/SystemServer.java
+index a4f4f6e..1a89f9d 100644
+--- a/services/java/com/android/server/SystemServer.java
++++ b/services/java/com/android/server/SystemServer.java
+@@ -1131,7 +1131,7 @@ public final class SystemServer {
+                 mSystemServiceManager.startService(DreamManagerService.class);
+             }
+ 
+-            if (!disableNonCoreServices && ZygoteInit.PRELOAD_RESOURCES) {
++            if (!disableNonCoreServices && ZygoteInit.PRELOAD_RESOURCES && false) {
+                 traceBeginAndSlog("StartAssetAtlasService");
+                 try {
+                     atlas = new AssetAtlasService(context);
