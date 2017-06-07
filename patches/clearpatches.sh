@@ -36,3 +36,17 @@ done
 clear_set common
 clear_set janice
 
+THISDIR=$PWD
+TOPDIR="$THISDIR/../../../../"
+CLEARED=""
+
+clear_set microg
+clear_set omni
+
+THISDIR=$PWD
+TOPDIR="$THISDIR/../../../../"
+CLEARED=""
+
+clear_set selinux
+clear_set validus
+

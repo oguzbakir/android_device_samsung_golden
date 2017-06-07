@@ -1,0 +1,26 @@
+diff --git a/media/libmediaplayerservice/Android.mk b/media/libmediaplayerservice/Android.mk
+index b175453..91ea866 100644
+--- a/media/libmediaplayerservice/Android.mk
++++ b/media/libmediaplayerservice/Android.mk
+@@ -60,7 +60,7 @@ LOCAL_C_INCLUDES :=                                                 \
+     $(TOP)/frameworks/av/media/libavextensions                      \
+     $(TOP)/frameworks/av/media/libstagefright/mpeg2ts               \
+ 
+-LOCAL_CFLAGS += -Werror -Wno-error=deprecated-declarations -Wall
++LOCAL_CFLAGS += -Wno-error=deprecated-declarations -Wall
+ LOCAL_CLANG := true
+ 
+ LOCAL_MODULE:= libmediaplayerservice
+diff --git a/services/audiopolicy/Android.mk b/services/audiopolicy/Android.mk
+index c8e5148..ee8ca24 100644
+--- a/services/audiopolicy/Android.mk
++++ b/services/audiopolicy/Android.mk
+@@ -50,7 +54,7 @@ LOCAL_MULTILIB := $(AUDIOSERVER_MULTILIB)
+ LOCAL_MODULE:= libaudiopolicyservice
+ 
+ LOCAL_CFLAGS += -fvisibility=hidden
+-LOCAL_CFLAGS += -Wall -Werror
++LOCAL_CFLAGS += -Wall
+ 
+ include $(BUILD_SHARED_LIBRARY)
+ 

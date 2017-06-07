@@ -1,4 +1,3 @@
-
 #!/bin/bash
 THISDIR=$PWD
 ROM=${1}

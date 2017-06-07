@@ -1,8 +1,31 @@
 #!/bin/bash
-. internal/patch.sh common
-mon. internal/patch.sh janice
-. internal/patch.sh selinux
-
+clear
+echo "----------------------------"
+echo "Select ROM:"
+echo "----------------------------"
 echo ""
-echo "Don't forget to run '. internal/patch.sh omni' for Omni!"
-echo "or '. internal/patch.sh microg' for microG! (only for ROMs without microG support eg. LOS)"
+echo "a. Lineage and Lineage-based ROMs"
+echo "b. Omni"
+echo "c. Validus"
+echo ""
+read -p "Choose rom: " answer
+. patcher.sh common
+while true
+do
+  case $answer in
+   [aA1]* ) . patcher.sh microg
+            break;;
+
+   [bB2]* ) . patcher.sh omni
+            break;;
+
+   [cC3]* ) . patcher.sh validus
+            . patcher.sh microg
+            break;;
+
+   * )      break;;
+  esac
+done
+. patcher.sh selinux
+. patcher.sh janice
+

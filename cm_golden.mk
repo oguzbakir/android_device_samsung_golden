@@ -22,6 +22,10 @@ $(call inherit-product-if-exists, vendor/cm/config/common_full_phone.mk)
 $(call inherit-product-if-exists, vendor/omni/config/common.mk)
 $(call inherit-product-if-exists, vendor/omni/config/gsm.mk)
 
+# For Validus
+$(call inherit-product-if-exists, vendor/validus/config/common_full_phone.mk)
+$(call inherit-product-if-exists, vendor/validus/config/caf_fw.mk)
+
 # Inherit device configuration
 $(call inherit-product, device/samsung/golden/golden.mk)
 
