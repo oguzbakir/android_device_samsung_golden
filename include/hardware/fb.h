@@ -48,7 +48,7 @@ typedef struct framebuffer_device_t {
     const uint32_t  flags;
 
     /* dimensions of the framebuffer in pixels */
-#ifdef STE_HARDWARE
+#if 1 //STE_HARDWARE isnt currenty defined
     uint32_t        width;
     uint32_t        height;
 #else
@@ -57,7 +57,7 @@ typedef struct framebuffer_device_t {
 #endif
 
     /* frambuffer stride in pixels */
-#ifdef STE_HARDWARE
+#if 1 //STE_HARDWARE isnt currenty defined
     int             stride;
 #else
     const int       stride;
@@ -67,7 +67,7 @@ typedef struct framebuffer_device_t {
     const int       format;
 
     /* resolution of the framebuffer's display panel in pixel per inch*/
-#ifdef STE_HARDWARE
+#if 1 //STE_HARDWARE isnt currenty defined
     float           xdpi;
     float           ydpi;
 #else
@@ -164,7 +164,7 @@ typedef struct framebuffer_device_t {
      */
     int (*enableScreen)(struct framebuffer_device_t* dev, int enable);
 
-#ifdef STE_HARDWARE
+#if 1 //STE_HARDWARE isnt currenty defined
     /*
      * Sets the number of degrees ccw the framebuffer shall be rotated before
      * being sent to the display. This call may change the framebuffer's

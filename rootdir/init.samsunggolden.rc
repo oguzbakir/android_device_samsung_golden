@@ -55,7 +55,7 @@ on init
     mount debugfs none /debug
 
     # Preload libjhead for camera
-    export LD_PRELOAD /system/lib/libjhead.so
+    #export LD_PRELOAD /system/lib/libjhead.so //3liteking148: remove (not needed)
 
     # Prevents permission denied error for telephony
     chmod 0644 /proc/cmdline
@@ -292,14 +292,14 @@ on post-fs
     chmod 0660 /debug/prcmu/ddr_opp
 
     # Install Kernel Module
-    insmod /system/lib/modules/j4fs.ko
+    insmod /system/vendor/lib/modules/j4fs.ko
 
     # We need to decide j4fs's partition number(mmcblk0pX)
     mount j4fs /dev/block/mmcblk0p19 /mnt/.lfs wait
     symlink /dev/block/mmcblk0p19 /dev/block/param
 
-    insmod /system/lib/modules/param.ko
-    insmod /system/lib/modules/bthid.ko
+    insmod /system/vendor/lib/modules/param.ko
+    insmod /system/vendor/lib/modules/bthid.ko
 
     # AB8500 Fuelgauge initialization using PARAM capacity
     # write /sys/class/power_supply/sec-fuelgauge/reinit_cap 1
@@ -503,7 +503,7 @@ service admsrv /system/bin/admsrv
     group system audio inet net_bt net_bt_admin net_raw shell log
     ioprio rt 4
     capability NET_ADMIN NET_RAW SYS_NICE
-    seclabel u:r:admsrv:s0
+    #seclabel u:r:admsrv:s0
 on property:init.svc.wpa_supplicant=stopped
     stop dhcpcd
 

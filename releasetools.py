@@ -44,9 +44,4 @@ def FullOTA_InstallEnd(info):
   info.output_zip.write(os.path.join(TARGET_DIR, "updater-script-janice"), "META-INF/com/google/android/updater-script-janice")
   info.output_zip.write(os.path.join(TARGET_DIR, "janice.img"), "janice.img")
   
-  # Symlink some dependencies of libcscall.so
- 
-  info.script.AppendExtra('symlink("/system/lib/ste_omxcomponents/libste_dec_amr.so", "/system/lib/libste_dec_amr.so");')
-  info.script.AppendExtra('symlink("/system/lib/ste_omxcomponents/libste_enc_amr.so", "/system/lib/libste_enc_amr.so");')
-  info.script.AppendExtra('symlink("/system/lib/ste_omxcomponents/libste_dec_amrwb.so", "/system/lib/libste_dec_amrwb.so");')
-  info.script.AppendExtra('symlink("/system/lib/ste_omxcomponents/libste_enc_amrwb.so", "/system/lib/libste_enc_amrwb.so");')
+
