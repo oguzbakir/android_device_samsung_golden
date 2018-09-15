@@ -386,4 +386,6 @@ PRODUCT_PACKAGES += \
     libomxil-bellagio \
     camera.montblanc \
     gps.montblanc \
-    libsecril-shim
+    libsecril-shim \
+    android.hardware.camera.provider@2.4-impl-legacy \
+    camera.device@1.0-impl-legacy \
