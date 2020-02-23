@@ -1,0 +1,34 @@
+diff --git a/core/binary.mk b/core/binary.mk
+index 2aeb9c2..d496596 100644
+--- a/core/binary.mk
++++ b/core/binary.mk
+@@ -387,7 +387,7 @@ endif
+ # in the exception project list.
+ ifeq ($(my_clang),false)
+     ifeq ($(call find_in_local_clang_exception_projects,$(LOCAL_MODULE_MAKEFILE))$(LOCAL_IS_AUX_MODULE),)
+-        $(error $(LOCAL_MODULE_MAKEFILE): $(LOCAL_MODULE): LOCAL_CLANG is set to false)
++        $(warning $(LOCAL_MODULE_MAKEFILE): $(LOCAL_MODULE): LOCAL_CLANG is set to false)
+     endif
+ endif
+ 
+diff --git a/tools/releasetools/edify_generator.py b/tools/releasetools/edify_generator.py
+index 2ddb5cf..eebe39c 100644
+--- a/tools/releasetools/edify_generator.py
++++ b/tools/releasetools/edify_generator.py
+@@ -145,13 +145,14 @@ class EdifyGenerator(object):
+ 
+   def AssertDevice(self, device):
+     """Assert that the device identifier is the given string."""
+-    cmd = ('assert(' +
++    """cmd = ('assert(' +
+            ' || \0'.join(['getprop("ro.product.device") == "%s" || getprop("ro.build.product") == "%s"'
+                          % (i, i) for i in device.split(",")]) +
+            ' || abort("E%d: This package is for device: %s; ' +
+            'this device is " + getprop("ro.product.device") + ".");' +
+            ');') % (common.ErrorCode.DEVICE_MISMATCH, device)
+-    self.script.append(self.WordWrap(cmd))
++    self.script.append(self.WordWrap(cmd))"""
++    pass
+ 
+   def AssertSomeBootloader(self, *bootloaders):
+     """Assert that the bootloader version is one of *bootloaders."""

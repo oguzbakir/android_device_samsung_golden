@@ -1,0 +1,19 @@
+diff --git a/linker/linker.cpp b/linker/linker.cpp
+index 620e189..7339d60 100644
+--- a/linker/linker.cpp
++++ b/linker/linker.cpp
+@@ -3388,10 +3388,10 @@ bool soinfo::link_image(const soinfo_list_t& global_group, const soinfo_list_t&
+ #else
+     if (get_application_target_sdk_version() >= __ANDROID_API_M__) {
+ #endif
+-      DL_ERR_AND_LOG("\"%s\" has text relocations (https://android.googlesource.com/platform/"
+-                     "bionic/+/master/android-changes-for-ndk-developers.md#Text-Relocations-"
+-                     "Enforced-for-API-level-23)", get_realpath());
+-      return false;
++      //DL_ERR_AND_LOG("\"%s\" has text relocations (https://android.googlesource.com/platform/"
++      //               "bionic/+/master/android-changes-for-ndk-developers.md#Text-Relocations-"
++      //               "Enforced-for-API-level-23)", get_realpath());
++      //return false;
+     }
+     // Make segments writable to allow text relocations to work properly. We will later call
+     // phdr_table_protect_segments() after all of them are applied.

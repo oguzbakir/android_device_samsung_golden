@@ -1,0 +1,17 @@
+diff --git a/cc/config/arm_device.go b/cc/config/arm_device.go
+index 6606100..39e7ec8 100644
+--- a/cc/config/arm_device.go
++++ b/cc/config/arm_device.go
+@@ -51,10 +51,12 @@ var (
+ 		"-fgcse-after-reload",
+ 		"-frerun-cse-after-loop",
+ 		"-frename-registers",
++		"-DSTE_HARDWARE",
+ 	}
+ 
+ 	armCppflags = []string{
+ 		"-fvisibility-inlines-hidden",
++		"-DSTE_HARDWARE",
+ 	}
+ 
+ 	armLdflags = []string{
